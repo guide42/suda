@@ -128,6 +128,29 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('Hello Bob', $retBob->greet());
         $this->assertEquals('Hello Ted', $retTed->greet());
     }
+
+    public function testGetAll()
+    {
+        $registry = new Registry();
+        $registry->register(new GreeterService('Bob'), 'bob');
+        $registry->register(new GreeterService('Ted'), 'ted');
+
+        $services = $registry->getAll('GreeterInterface');
+
+        $this->assertInternalType('array', $services);
+        $this->assertEquals(array('bob', 'ted'), array_keys($services));
+    }
+
+    /**
+     * @expectedException        \RuntimeException
+     * @expectedExceptionMessage Services for ArrayAccess not found
+     */
+    public function testGetAllWithNonexistentThrowsLookupException()
+    {
+        $registry = new Registry();
+        $registry->register(new GreeterService());
+        $registry->getAll('ArrayAccess');
+    }
 }
 
 ### FIXTURES ##################################################################

@@ -34,4 +34,14 @@ class Registry
             "Service \"$name\" for $interface not found"
         );
     }
+
+    public function getAll($interface) {
+        if (isset($this->services[$interface])) {
+            return $this->services[$interface];
+        }
+
+        throw new \RuntimeException(
+            "Services for $interface not found"
+        );
+    }
 }
