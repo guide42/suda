@@ -21,4 +21,12 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
         $registry = new Registry();
         $registry->register(new \SplFileInfo(__FILE__));
     }
+
+    public function testRegister()
+    {
+        $registry = new Registry();
+        $registry->register(new \ArrayObject());
+
+        $this->assertInstanceOf('ArrayAccess', $registry->get('ArrayAccess'));
+    }
 }
