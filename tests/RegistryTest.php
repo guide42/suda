@@ -151,6 +151,65 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
         $registry->register(new GreeterService());
         $registry->getAll('ArrayAccess');
     }
+
+    /**
+     * @expectedException        \LogicException
+     * @expectedExceptionMessage Factory must implement at least one interface
+     */
+    public function testRegisterFactoryWithInvalid()
+    {
+        $registry = new Registry();
+        $registry->registerFactory('InvalidService');
+    }
+
+    public function testRegisterFactory()
+    {
+        $registry = new Registry();
+        $registry->registerFactory('EvaPersonGreeter', array('Person'), 'eva');
+
+        $context = array(new Bob());
+        $object = $registry->get('PersonGreeterInterface', 'eva', $context);
+
+        $this->assertInstanceOf('PersonGreeter', $object);
+        $this->assertEquals('Hello Bob, my name is Eva', $object->greet());
+    }
+
+    public function testRegisterFactoryWithoutContext()
+    {
+        $registry = new Registry();
+        $registry->register(new Bob());
+        $registry->registerFactory('EvaPersonGreeter', array('Person'), 'eva');
+
+        $object = $registry->get('PersonGreeterInterface', 'eva');
+
+        $this->assertInstanceOf('PersonGreeter', $object);
+        $this->assertEquals('Hello Bob, my name is Eva', $object->greet());
+    }
+
+    public function testRegisterFactoryWithArgumentName()
+    {
+        $registry = new Registry();
+        $registry->register(new Bob(), 'bob');
+        $registry->registerFactory('EvaPersonGreeter',
+            array(array('Person', 'bob')), 'eva');
+
+        $object = $registry->get('PersonGreeterInterface', 'eva');
+
+        $this->assertInstanceOf('PersonGreeter', $object);
+        $this->assertEquals('Hello Bob, my name is Eva', $object->greet());
+    }
+
+    public function testGetAllDoesntIncludeFactories()
+    {
+        $registry = new Registry();
+        $registry->register(new GreeterService());
+        $registry->registerFactory('EvaPersonGreeter', array('Person'), 'eva');
+
+        $services = $registry->getAll('GreeterInterface');
+
+        $this->assertInternalType('array', $services);
+        $this->assertEquals(array(''), array_keys($services));
+    }
 }
 
 ### FIXTURES ##################################################################
@@ -170,12 +229,23 @@ class GreeterService implements GreeterInterface, GoodbyeInterface {
 }
 
 interface Person { function getName(); }
+interface PersonGreeterInterface {}
 
 class Bob implements Person { public function getName() { return 'Bob'; } }
 class Ted implements Person { public function getName() { return 'Ted'; } }
 
-class PersonGreeter extends GreeterService {
+class PersonGreeter extends GreeterService implements PersonGreeterInterface {
     public function __construct(Person $person) {
         parent::__construct($person->getName());
     }
+}
+
+abstract class PersonPersonGreeter extends PersonGreeter implements Person {
+    public function greet() {
+        return parent::greet() . ', my name is ' . $this->getName();
+    }
+}
+
+class EvaPersonGreeter extends PersonPersonGreeter {
+    public function getName() { return 'Eva'; }
 }
