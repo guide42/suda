@@ -32,6 +32,55 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('GreeterInterface', $object);
         $this->assertEquals('Hello World', $object->greet());
     }
+
+    /**
+     * @expectedException        \RuntimeException
+     * @expectedExceptionMessage Service for ArrayAccess not found
+     */
+    public function testGetWithNonexistentThrowsLookupException()
+    {
+        $registry = new Registry();
+        $registry->register(new \GreeterService());
+        $registry->get('ArrayAccess');
+    }
+
+    /**
+     * @expectedException        \RuntimeException
+     * @expectedExceptionMessage Service for GreeterService not found
+     */
+    public function testGetWithClassThrowsLookupException()
+    {
+        $registry = new Registry();
+        $registry->register(new \GreeterService());
+        $registry->get('GreeterService');
+    }
+
+    public function testRegisterReplace()
+    {
+        $registry = new Registry();
+        $registry->register(new \GreeterService('Bob'));
+        $registry->register(new \GreeterService('Ted'));
+
+        $object = $registry->get('GreeterInterface');
+
+        $this->assertInstanceOf('GreeterInterface', $object);
+        $this->assertEquals('Hello Ted', $object->greet());
+    }
+
+    public function testGetSame()
+    {
+        $registry = new Registry();
+        $registry->register($object = new \GreeterService());
+
+        $objectOne = $registry->get('GreeterInterface');
+        $objectTwo = $registry->get('GreeterInterface');
+
+        $this->assertInstanceOf('GreeterInterface', $objectOne);
+        $this->assertInstanceOf('GreeterInterface', $objectTwo);
+        $this->assertSame($objectOne, $objectTwo);
+        $this->assertSame($object, $objectOne);
+        $this->assertSame($object, $objectTwo);
+    }
 }
 
 ### FIXTURES ##################################################################
@@ -40,7 +89,11 @@ interface GreeterInterface { function greet(); }
 
 class InvalidService {}
 class GreeterService implements GreeterInterface {
+    public $other;
+    public function __construct($other='World') {
+        $this->other = $other;
+    }
     public function greet() {
-        return 'Hello World';
+        return 'Hello ' . $this->other;
     }
 }
