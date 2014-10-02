@@ -11,4 +11,14 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
         $this->assertInternalType('array', $registry->settings);
         $this->assertEmpty($registry->settings);
     }
+
+    /**
+     * @expectedException        \LogicException
+     * @expectedExceptionMessage Service must implement at least one interface
+     */
+    public function testRegisterWithInvalid()
+    {
+        $registry = new Registry();
+        $registry->register(new \SplFileInfo(__FILE__));
+    }
 }
