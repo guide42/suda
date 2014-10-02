@@ -81,14 +81,30 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($object, $objectOne);
         $this->assertSame($object, $objectTwo);
     }
+
+    public function testGetSameWithDifferentInterfaces()
+    {
+        $registry = new Registry();
+        $registry->register($object = new \GreeterService());
+
+        $objectOne = $registry->get('GreeterInterface');
+        $objectTwo = $registry->get('GoodbyeInterface');
+
+        $this->assertInstanceOf('GreeterInterface', $objectOne);
+        $this->assertInstanceOf('GreeterInterface', $objectTwo);
+        $this->assertSame($objectOne, $objectTwo);
+        $this->assertSame($object, $objectOne);
+        $this->assertSame($object, $objectTwo);
+    }
 }
 
 ### FIXTURES ##################################################################
 
 interface GreeterInterface { function greet(); }
+interface GoodbyeInterface {}
 
 class InvalidService {}
-class GreeterService implements GreeterInterface {
+class GreeterService implements GreeterInterface, GoodbyeInterface {
     public $other;
     public function __construct($other='World') {
         $this->other = $other;
