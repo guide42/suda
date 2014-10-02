@@ -19,14 +19,28 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
     public function testRegisterWithInvalid()
     {
         $registry = new Registry();
-        $registry->register(new \SplFileInfo(__FILE__));
+        $registry->register(new \InvalidService());
     }
 
     public function testRegister()
     {
         $registry = new Registry();
-        $registry->register(new \ArrayObject());
+        $registry->register(new \GreeterService());
 
-        $this->assertInstanceOf('ArrayAccess', $registry->get('ArrayAccess'));
+        $object = $registry->get('GreeterInterface');
+
+        $this->assertInstanceOf('GreeterInterface', $object);
+        $this->assertEquals('Hello World', $object->greet());
+    }
+}
+
+### FIXTURES ##################################################################
+
+interface GreeterInterface { function greet(); }
+
+class InvalidService {}
+class GreeterService implements GreeterInterface {
+    public function greet() {
+        return 'Hello World';
     }
 }
