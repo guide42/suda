@@ -1,0 +1,21 @@
+{
+    "name": "guide42/suda",
+    "type": "library",
+    "description": "PHP Registry",
+    "keywords": ["registry"],
+    "license": "ISC",
+    "authors": [
+        {
+            "name": "Juan M Martínez",
+            "email": "suda@jm.guide42.com",
+            "homepage": "http://jm.guide42.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.3"
+    },
+    "autoload": {
+        "classmap": ["library/"]
+    }
+}
