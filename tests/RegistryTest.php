@@ -96,6 +96,18 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($object, $objectOne);
         $this->assertSame($object, $objectTwo);
     }
+
+    public function testRegisterInheritInterface()
+    {
+        $registry = new Registry();
+        $registry->register(new PersonGreeter(new Bob()));
+
+        $bob = $registry->get('GreeterInterface');
+
+        $this->assertInstanceOf('PersonGreeter', $bob);
+        $this->assertInstanceOf('GreeterInterface', $bob);
+        $this->assertEquals('Hello Bob', $bob->greet());
+    }
 }
 
 ### FIXTURES ##################################################################
@@ -111,5 +123,16 @@ class GreeterService implements GreeterInterface, GoodbyeInterface {
     }
     public function greet() {
         return 'Hello ' . $this->other;
+    }
+}
+
+interface Person { function getName(); }
+
+class Bob implements Person { public function getName() { return 'Bob'; } }
+class Ted implements Person { public function getName() { return 'Ted'; } }
+
+class PersonGreeter extends GreeterService {
+    public function __construct(Person $person) {
+        parent::__construct($person->getName());
     }
 }
