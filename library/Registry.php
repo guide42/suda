@@ -8,7 +8,7 @@ class Registry
 
     private $services = array();
 
-    public function register($service) {
+    public function register($service, $name='') {
         $interfaces = class_implements($service);
 
         if (empty($interfaces)) {
@@ -18,17 +18,20 @@ class Registry
         }
 
         foreach ($interfaces as $interface) {
-            $this->services[$interface] = $service;
+            if (!array_key_exists($interface, $this->services)) {
+                $this->services[$interface] = array();
+            }
+            $this->services[$interface][$name] = $service;
         }
     }
 
-    public function get($interface) {
-        if (isset($this->services[$interface])) {
-            return $this->services[$interface];
+    public function get($interface, $name='') {
+        if (isset($this->services[$interface][$name])) {
+            return $this->services[$interface][$name];
         }
 
         throw new \RuntimeException(
-            sprintf('Service for %s not found', $interface)
+            "Service \"$name\" for $interface not found"
         );
     }
 }

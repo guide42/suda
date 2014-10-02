@@ -35,7 +35,7 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException        \RuntimeException
-     * @expectedExceptionMessage Service for ArrayAccess not found
+     * @expectedExceptionMessage Service "" for ArrayAccess not found
      */
     public function testGetWithNonexistentThrowsLookupException()
     {
@@ -46,7 +46,7 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException        \RuntimeException
-     * @expectedExceptionMessage Service for GreeterService not found
+     * @expectedExceptionMessage Service "" for GreeterService not found
      */
     public function testGetWithClassThrowsLookupException()
     {
@@ -107,6 +107,26 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('PersonGreeter', $bob);
         $this->assertInstanceOf('GreeterInterface', $bob);
         $this->assertEquals('Hello Bob', $bob->greet());
+    }
+
+    public function testWithName()
+    {
+        $registry = new Registry();
+        $registry->register(new GreeterService());
+        $registry->register($greetBob = new GreeterService('Bob'), 'bob');
+        $registry->register($greetTed = new GreeterService('Ted'), 'ted');
+
+        $retBob = $registry->get('GreeterInterface', 'bob');
+        $retTed = $registry->get('GreeterInterface', 'ted');
+
+        $this->assertInstanceOf('GreeterInterface', $retBob);
+        $this->assertInstanceOf('GreeterInterface', $retTed);
+
+        $this->assertSame($greetBob, $retBob);
+        $this->assertSame($greetTed, $retTed);
+
+        $this->assertEquals('Hello Bob', $retBob->greet());
+        $this->assertEquals('Hello Ted', $retTed->greet());
     }
 }
 
