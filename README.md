@@ -13,16 +13,19 @@ class. From there you can start to storing *services* and *settings*.
 $registry = new \Guide42\Suda\Registry();
 ```
 
-You have a free storage for your config under the settings variable. There you
-can store whatevery your application need.
+You have a free storage for your config under the `settings` variable. There
+you can store whatever your application needs.
 
 ```php
 $registry->settings['debug'] = true;
 $registry->settings['env'] = 'dev';
 ```
 
+### Register Services
+
 Any instance of a class that implements at least one interface, is considered a
-service in Suda.
+service in *Suda*. Most of today's OO libraries use interfaces as design by
+contract.
 
 ```php
 $db = DriverManager::getConnection($params, $config);
@@ -35,11 +38,27 @@ function.
 $registry->register($db);
 ```
 
-You retrieve the stored services by calling `Registry::get` with the name of
-the interface they implement.
+And retrieve them by calling `Registry::get` with the name of the interface
+they implement.
 
 ```php
 $db = $registry->get('\Doctrine\DBAL\Driver\Connection');
+```
+
+If you use several services with the same interfaces, the last one you
+register will be the one you get. If can fix this by using an optional name
+for the service you register.
+
+```php
+$registry->register(new \Monolog\Logger('main'), 'main');
+$registry->register(new \Monolog\Logger('dev'), 'dev');
+```
+
+And retrieve them by the interface and name.
+
+```php
+$registry->get('\Psr\Log\LoggerInterface', 'main')->addWarning('Help!');
+$registry->get('\Psr\Log\LoggerInterface', 'dev')->addError('Help!');
 ```
 
 Badges
