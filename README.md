@@ -61,6 +61,44 @@ $registry->get('\Psr\Log\LoggerInterface', 'main')->addWarning('Help!');
 $registry->get('\Psr\Log\LoggerInterface', 'dev')->addError('Help!');
 ```
 
+You can get an array with the name as key and the service as value for all the
+services that implement a given interface.
+
+```php
+$loggers = $registry->getAll('\Psr\Log\LoggerInterface');
+```
+
+### Register Service Factories
+
+You can also give *Suda* the power to create the instances of your services.
+For that you need to "define" the class of your service and the arguments it
+takes when it going to be created.
+
+```php
+$registry->registerFactory(
+    '\Symfony\Component\Routing\Matcher\UrlMatcher',
+    array(
+        '\Symfony\Component\Routing\RouteCollection',
+        '\Symfony\Component\Routing\RequestContext'
+    )
+);
+```
+
+And you retrieve as a normal service with a third argument of the context that
+replace the original arguments you define for your factory. If you skip one
+argument in the context, *Suda* will try to get it from itself.
+
+```php
+$urlMatcher = $registry->get(
+    '\Symfony\Component\Routing\Matcher\UrlMatcherInterface',
+    '', // the name defaults to an empty string
+    array(
+        new \Symfony\Component\Routing\RouteCollection(),
+        new \Symfony\Component\Routing\RequestContext(),
+    )
+);
+```
+
 Badges
 ------
 
