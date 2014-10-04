@@ -77,6 +77,7 @@ takes when it going to be created.
 ```php
 $registry->registerFactory(
     '\Symfony\Component\Routing\Matcher\UrlMatcher',
+    '',
     array(
         '\Symfony\Component\Routing\RouteCollection',
         '\Symfony\Component\Routing\RequestContext'
@@ -91,7 +92,7 @@ argument in the context, *Suda* will try to get it from itself.
 ```php
 $urlMatcher = $registry->get(
     '\Symfony\Component\Routing\Matcher\UrlMatcherInterface',
-    '', // the name defaults to an empty string
+    '',
     array(
         new \Symfony\Component\Routing\RouteCollection(),
         new \Symfony\Component\Routing\RequestContext(),

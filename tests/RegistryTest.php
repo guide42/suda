@@ -165,7 +165,7 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
     public function testRegisterFactory()
     {
         $registry = new Registry();
-        $registry->registerFactory('EvaPersonGreeter', array('Person'), 'eva');
+        $registry->registerFactory('EvaPersonGreeter', 'eva', array('Person'));
 
         $context = array(new Bob());
         $object = $registry->get('PersonGreeterInterface', 'eva', $context);
@@ -178,7 +178,7 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
     {
         $registry = new Registry();
         $registry->register(new Bob());
-        $registry->registerFactory('EvaPersonGreeter', array('Person'), 'eva');
+        $registry->registerFactory('EvaPersonGreeter', 'eva', array('Person'));
 
         $object = $registry->get('PersonGreeterInterface', 'eva');
 
@@ -190,8 +190,8 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
     {
         $registry = new Registry();
         $registry->register(new Bob(), 'bob');
-        $registry->registerFactory('EvaPersonGreeter',
-            array(array('Person', 'bob')), 'eva');
+        $registry->registerFactory('EvaPersonGreeter', 'eva',
+            array(array('Person', 'bob')));
 
         $object = $registry->get('PersonGreeterInterface', 'eva');
 
@@ -203,7 +203,7 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
     {
         $registry = new Registry();
         $registry->register(new GreeterService());
-        $registry->registerFactory('EvaPersonGreeter', array('Person'), 'eva');
+        $registry->registerFactory('EvaPersonGreeter', 'eva', array('Person'));
 
         $services = $registry->getAll('GreeterInterface');
 

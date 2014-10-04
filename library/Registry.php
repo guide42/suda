@@ -30,8 +30,8 @@ class Registry
         }
     }
 
-    public function registerFactory($factory, array $arguments=array(),
-                                    $name='') {
+    public function registerFactory($factory, $name='',
+                              array $arguments=array()) {
         $interfaces = class_implements($factory);
 
         if (empty($interfaces)) {
