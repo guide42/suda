@@ -2,7 +2,7 @@
 
 namespace Guide42\Suda;
 
-class Registry
+class Registry implements RegistryInterface
 {
     public $settings = array();
 
