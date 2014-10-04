@@ -55,10 +55,13 @@ class Registry
                     continue;
                 }
 
-                if (is_array($argument) && count($argument) > 1) {
+                if (is_string($argument) && $this->has($argument)) {
+                    $context[$index] = $this->get($argument);
+                } elseif (is_array($argument) && count($argument) === 2 &&
+                          $this->has($argument[0], $argument[1])) {
                     $context[$index] = $this->get($argument[0], $argument[1]);
                 } else {
-                    $context[$index] = $this->get($argument);
+                    $context[$index] = $argument;
                 }
             }
 

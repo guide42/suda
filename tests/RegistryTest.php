@@ -191,12 +191,33 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
         $registry = new Registry();
         $registry->register(new Bob(), 'bob');
         $registry->registerFactory('EvaPersonGreeter', 'eva',
-            array(array('Person', 'bob')));
+            array( // arguments
+                array('Person', 'bob'),
+            )
+        );
 
         $object = $registry->get('PersonGreeterInterface', 'eva');
 
         $this->assertInstanceOf('PersonGreeter', $object);
         $this->assertEquals('Hello Bob, my name is Eva', $object->greet());
+    }
+
+    public function testRegisterFactoryWithArgumentLiteral()
+    {
+        $registry = new Registry();
+        $registry->register(new Bob(), 'bob');
+        $registry->registerFactory('EvaPersonGreeter', 'eva',
+            array( // arguments
+                array('Person', 'bob'),
+                42
+            )
+        );
+
+        $object = $registry->get('PersonGreeterInterface', 'eva');
+
+        $this->assertInstanceOf('PersonGreeter', $object);
+        $this->assertEquals('Hello Bob, my name is Eva (42 years old)',
+            $object->greet());
     }
 
     public function testGetAllDoesntIncludeFactories()
@@ -265,8 +286,14 @@ class PersonGreeter extends GreeterService implements PersonGreeterInterface {
 }
 
 abstract class PersonPersonGreeter extends PersonGreeter implements Person {
+    private $age;
+    public function __construct(Person $person, $age=null) {
+        $this->age = $age;
+        parent::__construct($person);
+    }
     public function greet() {
-        return parent::greet() . ', my name is ' . $this->getName();
+        return parent::greet() . ', my name is ' . $this->getName() .
+               ($this->age ? ' (' . $this->age . ' years old)' : '');
     }
 }
 
