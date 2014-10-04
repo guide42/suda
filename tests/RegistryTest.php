@@ -220,6 +220,20 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($registry->has('GreeterInterface', 'world'));
         $this->assertFalse($registry->has('PersonGreeterInterface'));
     }
+
+    public function testGetWillCacheReflexionWhenUsedTwice()
+    {
+        $registry = new Registry();
+        $registry->registerFactory('EvaPersonGreeter', 'e1', array('Person'));
+        $registry->registerFactory('EvaPersonGreeter', 'e2', array('Person'));
+
+        $context = array(new Bob());
+
+        $obj1 = $registry->get('PersonGreeterInterface', 'e1', $context);
+        $obj2 = $registry->get('PersonGreeterInterface', 'e2', $context);
+
+        $this->assertNotSame($obj1, $obj2);
+    }
 }
 
 ### FIXTURES ##################################################################
