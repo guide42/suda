@@ -88,4 +88,9 @@ class Registry
             "Services for $interface not found"
         );
     }
+
+    public function has($interface, $name='') {
+        return isset($this->services[$interface][$name]) ||
+               isset($this->factories[$interface][$name]);
+    }
 }

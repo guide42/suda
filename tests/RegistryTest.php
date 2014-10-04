@@ -210,6 +210,16 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
         $this->assertInternalType('array', $services);
         $this->assertEquals(array(''), array_keys($services));
     }
+
+    public function testHas()
+    {
+        $registry = new Registry();
+        $registry->register(new GreeterService());
+
+        $this->assertTrue($registry->has('GreeterInterface'));
+        $this->assertFalse($registry->has('GreeterInterface', 'world'));
+        $this->assertFalse($registry->has('PersonGreeterInterface'));
+    }
 }
 
 ### FIXTURES ##################################################################
