@@ -9,6 +9,10 @@ class Registry
     private $services = array();
     private $factories = array();
 
+    /* This contains the instances of \ReflectionClass that will
+     * be used to create new instances of services */
+    private $reflcache = array();
+
     public function register($service, $name='') {
         $interfaces = class_implements($service);
 
@@ -36,13 +40,11 @@ class Registry
             );
         }
 
-        $refl = new \ReflectionClass($factory);
-
         foreach ($interfaces as $interface) {
             if (!array_key_exists($interface, $this->factories)) {
                 $this->factories[$interface] = array();
             }
-            $this->factories[$interface][$name] = array($refl, $arguments);
+            $this->factories[$interface][$name] = array($factory, $arguments);
         }
     }
 
@@ -66,7 +68,14 @@ class Registry
                 }
             }
 
-            $service = $factory->newInstanceArgs($context);
+            if (isset($this->reflcache[$factory])) {
+                $refl = $this->reflcache[$factory];
+            } else {
+                $refl = $this->reflcache[$factory]
+                      = new \ReflectionClass($factory);
+            }
+
+            $service = $refl->newInstanceArgs($context);
 
             return $this->services[$interface][$name] = $service;
         }
