@@ -23,9 +23,6 @@ class Registry
         }
 
         foreach ($interfaces as $interface) {
-            if (!array_key_exists($interface, $this->services)) {
-                $this->services[$interface] = array();
-            }
             $this->services[$interface][$name] = $service;
         }
     }
@@ -41,9 +38,6 @@ class Registry
         }
 
         foreach ($interfaces as $interface) {
-            if (!array_key_exists($interface, $this->factories)) {
-                $this->factories[$interface] = array();
-            }
             $this->factories[$interface][$name] = array($factory, $arguments);
         }
     }
