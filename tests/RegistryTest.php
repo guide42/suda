@@ -1,9 +1,18 @@
 <?php
 
+namespace Guide42\Suda\Tests;
+
 use Guide42\Suda\Registry;
+
+use Guide42\Suda\Tests\Fixtures\InvalidService;
+use Guide42\Suda\Tests\Fixtures\GreeterService;
+use Guide42\Suda\Tests\Fixtures\PersonGreeter;
+use Guide42\Suda\Tests\Fixtures\Bob;
 
 class RegistryTest extends \PHPUnit_Framework_TestCase
 {
+    private $ns = 'Guide42\\Suda\\Tests\\Fixtures';
+
     public function testSettings()
     {
         $registry = new Registry();
@@ -19,17 +28,17 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
     public function testRegisterWithInvalid()
     {
         $registry = new Registry();
-        $registry->register(new \InvalidService());
+        $registry->register(new InvalidService());
     }
 
     public function testRegister()
     {
         $registry = new Registry();
-        $registry->register(new \GreeterService());
+        $registry->register(new GreeterService());
 
-        $object = $registry->get('GreeterInterface');
+        $object = $registry->get("$this->ns\\GreeterInterface");
 
-        $this->assertInstanceOf('GreeterInterface', $object);
+        $this->assertInstanceOf("$this->ns\\GreeterInterface", $object);
         $this->assertEquals('Hello World', $object->greet());
     }
 
@@ -40,43 +49,43 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
     public function testGetWithNonexistentThrowsLookupException()
     {
         $registry = new Registry();
-        $registry->register(new \GreeterService());
+        $registry->register(new GreeterService());
         $registry->get('ArrayAccess');
     }
 
     /**
      * @expectedException        \RuntimeException
-     * @expectedExceptionMessage Service "" for GreeterService not found
+     * @expectedExceptionMessage Service "" for Guide42\Suda\Tests\Fixtures\GreeterService not found
      */
     public function testGetWithClassThrowsLookupException()
     {
         $registry = new Registry();
-        $registry->register(new \GreeterService());
-        $registry->get('GreeterService');
+        $registry->register(new GreeterService());
+        $registry->get("$this->ns\\GreeterService");
     }
 
     public function testRegisterReplace()
     {
         $registry = new Registry();
-        $registry->register(new \GreeterService('Bob'));
-        $registry->register(new \GreeterService('Ted'));
+        $registry->register(new GreeterService('Bob'));
+        $registry->register(new GreeterService('Ted'));
 
-        $object = $registry->get('GreeterInterface');
+        $object = $registry->get("$this->ns\\GreeterInterface");
 
-        $this->assertInstanceOf('GreeterInterface', $object);
+        $this->assertInstanceOf("$this->ns\\GreeterInterface", $object);
         $this->assertEquals('Hello Ted', $object->greet());
     }
 
     public function testGetSame()
     {
         $registry = new Registry();
-        $registry->register($object = new \GreeterService());
+        $registry->register($object = new GreeterService());
 
-        $objectOne = $registry->get('GreeterInterface');
-        $objectTwo = $registry->get('GreeterInterface');
+        $objectOne = $registry->get("$this->ns\\GreeterInterface");
+        $objectTwo = $registry->get("$this->ns\\GreeterInterface");
 
-        $this->assertInstanceOf('GreeterInterface', $objectOne);
-        $this->assertInstanceOf('GreeterInterface', $objectTwo);
+        $this->assertInstanceOf("$this->ns\\GreeterInterface", $objectOne);
+        $this->assertInstanceOf("$this->ns\\GreeterInterface", $objectTwo);
         $this->assertSame($objectOne, $objectTwo);
         $this->assertSame($object, $objectOne);
         $this->assertSame($object, $objectTwo);
@@ -85,13 +94,13 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
     public function testGetSameWithDifferentInterfaces()
     {
         $registry = new Registry();
-        $registry->register($object = new \GreeterService());
+        $registry->register($object = new GreeterService());
 
-        $objectOne = $registry->get('GreeterInterface');
-        $objectTwo = $registry->get('GoodbyeInterface');
+        $objectOne = $registry->get("$this->ns\\GreeterInterface");
+        $objectTwo = $registry->get("$this->ns\\GoodbyeInterface");
 
-        $this->assertInstanceOf('GreeterInterface', $objectOne);
-        $this->assertInstanceOf('GreeterInterface', $objectTwo);
+        $this->assertInstanceOf("$this->ns\\GreeterInterface", $objectOne);
+        $this->assertInstanceOf("$this->ns\\GreeterInterface", $objectTwo);
         $this->assertSame($objectOne, $objectTwo);
         $this->assertSame($object, $objectOne);
         $this->assertSame($object, $objectTwo);
@@ -102,10 +111,10 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
         $registry = new Registry();
         $registry->register(new PersonGreeter(new Bob()));
 
-        $bob = $registry->get('GreeterInterface');
+        $bob = $registry->get("$this->ns\\GreeterInterface");
 
-        $this->assertInstanceOf('PersonGreeter', $bob);
-        $this->assertInstanceOf('GreeterInterface', $bob);
+        $this->assertInstanceOf("$this->ns\\PersonGreeter", $bob);
+        $this->assertInstanceOf("$this->ns\\GreeterInterface", $bob);
         $this->assertEquals('Hello Bob', $bob->greet());
     }
 
@@ -116,11 +125,11 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
         $registry->register($greetBob = new GreeterService('Bob'), 'bob');
         $registry->register($greetTed = new GreeterService('Ted'), 'ted');
 
-        $retBob = $registry->get('GreeterInterface', 'bob');
-        $retTed = $registry->get('GreeterInterface', 'ted');
+        $retBob = $registry->get("$this->ns\\GreeterInterface", 'bob');
+        $retTed = $registry->get("$this->ns\\GreeterInterface", 'ted');
 
-        $this->assertInstanceOf('GreeterInterface', $retBob);
-        $this->assertInstanceOf('GreeterInterface', $retTed);
+        $this->assertInstanceOf("$this->ns\\GreeterInterface", $retBob);
+        $this->assertInstanceOf("$this->ns\\GreeterInterface", $retTed);
 
         $this->assertSame($greetBob, $retBob);
         $this->assertSame($greetTed, $retTed);
@@ -135,7 +144,7 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
         $registry->register(new GreeterService('Bob'), 'bob');
         $registry->register(new GreeterService('Ted'), 'ted');
 
-        $services = $registry->getAll('GreeterInterface');
+        $services = $registry->getAll("$this->ns\\GreeterInterface");
 
         $this->assertInternalType('array', $services);
         $this->assertEquals(array('bob', 'ted'), array_keys($services));
@@ -159,18 +168,21 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
     public function testRegisterFactoryWithInvalid()
     {
         $registry = new Registry();
-        $registry->registerFactory('InvalidService');
+        $registry->registerFactory("$this->ns\\InvalidService");
     }
 
     public function testRegisterFactory()
     {
         $registry = new Registry();
-        $registry->registerFactory('EvaPersonGreeter', 'eva', array('Person'));
+        $registry->registerFactory("$this->ns\\EvaPersonGreeter", 'eva', array(
+            'Guide42\Suda\Tests\Fixtures\Person',
+        ));
 
-        $context = array(new Bob());
-        $object = $registry->get('PersonGreeterInterface', 'eva', $context);
+        $object = $registry->get("$this->ns\\PersonGreeterInterface", 'eva',
+            array(new Bob())
+        );
 
-        $this->assertInstanceOf('PersonGreeter', $object);
+        $this->assertInstanceOf("$this->ns\\PersonGreeter", $object);
         $this->assertEquals('Hello Bob, my name is Eva', $object->greet());
     }
 
@@ -178,11 +190,13 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
     {
         $registry = new Registry();
         $registry->register(new Bob());
-        $registry->registerFactory('EvaPersonGreeter', 'eva', array('Person'));
+        $registry->registerFactory("$this->ns\\EvaPersonGreeter", 'eva', array(
+            'Guide42\Suda\Tests\Fixtures\Person',
+        ));
 
-        $object = $registry->get('PersonGreeterInterface', 'eva');
+        $object = $registry->get("$this->ns\\PersonGreeterInterface", 'eva');
 
-        $this->assertInstanceOf('PersonGreeter', $object);
+        $this->assertInstanceOf("$this->ns\\PersonGreeter", $object);
         $this->assertEquals('Hello Bob, my name is Eva', $object->greet());
     }
 
@@ -190,15 +204,15 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
     {
         $registry = new Registry();
         $registry->register(new Bob(), 'bob');
-        $registry->registerFactory('EvaPersonGreeter', 'eva',
+        $registry->registerFactory("$this->ns\\EvaPersonGreeter", 'eva',
             array( // arguments
-                array('Person', 'bob'),
+                array("$this->ns\\Person", 'bob'),
             )
         );
 
-        $object = $registry->get('PersonGreeterInterface', 'eva');
+        $object = $registry->get("$this->ns\\PersonGreeterInterface", 'eva');
 
-        $this->assertInstanceOf('PersonGreeter', $object);
+        $this->assertInstanceOf("$this->ns\\PersonGreeter", $object);
         $this->assertEquals('Hello Bob, my name is Eva', $object->greet());
     }
 
@@ -206,16 +220,16 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
     {
         $registry = new Registry();
         $registry->register(new Bob(), 'bob');
-        $registry->registerFactory('EvaPersonGreeter', 'eva',
+        $registry->registerFactory("$this->ns\\EvaPersonGreeter", 'eva',
             array( // arguments
-                array('Person', 'bob'),
+                array("$this->ns\\Person", 'bob'),
                 42
             )
         );
 
-        $object = $registry->get('PersonGreeterInterface', 'eva');
+        $object = $registry->get("$this->ns\\PersonGreeterInterface", 'eva');
 
-        $this->assertInstanceOf('PersonGreeter', $object);
+        $this->assertInstanceOf("$this->ns\\PersonGreeter", $object);
         $this->assertEquals('Hello Bob, my name is Eva (42 years old)',
             $object->greet());
     }
@@ -224,9 +238,11 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
     {
         $registry = new Registry();
         $registry->register(new GreeterService());
-        $registry->registerFactory('EvaPersonGreeter', 'eva', array('Person'));
+        $registry->registerFactory("$this->ns\\EvaPersonGreeter", 'eva', array(
+            "$this->ns\\Person",
+        ));
 
-        $services = $registry->getAll('GreeterInterface');
+        $services = $registry->getAll("$this->ns\\GreeterInterface");
 
         $this->assertInternalType('array', $services);
         $this->assertEquals(array(''), array_keys($services));
@@ -237,66 +253,28 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
         $registry = new Registry();
         $registry->register(new GreeterService());
 
-        $this->assertTrue($registry->has('GreeterInterface'));
-        $this->assertFalse($registry->has('GreeterInterface', 'world'));
-        $this->assertFalse($registry->has('PersonGreeterInterface'));
+        $this->assertTrue($registry->has("$this->ns\\GreeterInterface"));
+        $this->assertFalse($registry->has("$this->ns\\GreeterInterface", 'w'));
     }
 
     public function testGetWillCacheReflexionWhenUsedTwice()
     {
         $registry = new Registry();
-        $registry->registerFactory('EvaPersonGreeter', 'e1', array('Person'));
-        $registry->registerFactory('EvaPersonGreeter', 'e2', array('Person'));
 
-        $context = array(new Bob());
+        $registry->registerFactory("$this->ns\\EvaPersonGreeter", 'e1', array(
+            "$this->ns\\Person",
+        ));
 
-        $obj1 = $registry->get('PersonGreeterInterface', 'e1', $context);
-        $obj2 = $registry->get('PersonGreeterInterface', 'e2', $context);
+        $registry->registerFactory("$this->ns\\EvaPersonGreeter", 'e2', array(
+            "$this->ns\\Person",
+        ));
+
+        $obj1 = $registry->get("$this->ns\\PersonGreeterInterface", 'e1',
+            array(new Bob()));
+
+        $obj2 = $registry->get("$this->ns\\PersonGreeterInterface", 'e2',
+            array(new Bob()));
 
         $this->assertNotSame($obj1, $obj2);
     }
-}
-
-### FIXTURES ##################################################################
-
-interface GreeterInterface { function greet(); }
-interface GoodbyeInterface {}
-
-class InvalidService {}
-class GreeterService implements GreeterInterface, GoodbyeInterface {
-    public $other;
-    public function __construct($other='World') {
-        $this->other = $other;
-    }
-    public function greet() {
-        return 'Hello ' . $this->other;
-    }
-}
-
-interface Person { function getName(); }
-interface PersonGreeterInterface {}
-
-class Bob implements Person { public function getName() { return 'Bob'; } }
-class Ted implements Person { public function getName() { return 'Ted'; } }
-
-class PersonGreeter extends GreeterService implements PersonGreeterInterface {
-    public function __construct(Person $person) {
-        parent::__construct($person->getName());
-    }
-}
-
-abstract class PersonPersonGreeter extends PersonGreeter implements Person {
-    private $age;
-    public function __construct(Person $person, $age=null) {
-        $this->age = $age;
-        parent::__construct($person);
-    }
-    public function greet() {
-        return parent::greet() . ', my name is ' . $this->getName() .
-               ($this->age ? ' (' . $this->age . ' years old)' : '');
-    }
-}
-
-class EvaPersonGreeter extends PersonPersonGreeter {
-    public function getName() { return 'Eva'; }
 }
