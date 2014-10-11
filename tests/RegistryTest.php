@@ -277,4 +277,25 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
 
         $this->assertNotSame($obj1, $obj2);
     }
+
+    /**
+     * @expectedException        \LogicException
+     * @expectedExceptionMessage Cyclic dependency detected for Guide42\Suda\Tests\Fixtures\EvaPersonGreeter
+     */
+    public function testRecursivity()
+    {
+        $registry = new Registry();
+
+        $registry->registerFactory("$this->ns\\Bob");
+
+        $registry->registerFactory("$this->ns\\BobGreeter", '',
+            array("$this->ns\\PersonGreeterInterface")
+        );
+
+        $registry->registerFactory("$this->ns\\EvaPersonGreeter", '',
+            array("$this->ns\\Person")
+        );
+
+        $registry->get("$this->ns\\GreeterInterface");
+    }
 }

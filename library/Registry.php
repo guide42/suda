@@ -13,6 +13,11 @@ class Registry implements RegistryInterface
      * be used to create new instances of services */
     private $reflcache = array();
 
+    /* Used to detect cyclic dependency, will contain the name of
+     * the class being created in the moment as key and a simple
+     * true as value */
+    private $loading = array();
+
     public function register($service, $name='') {
         $interfaces = class_implements($service);
 
@@ -50,6 +55,14 @@ class Registry implements RegistryInterface
         if (isset($this->factories[$interface][$name])) {
             list($factory, $arguments) = $this->factories[$interface][$name];
 
+            if (isset($this->loading[$factory])) {
+                throw new \LogicException(
+                    'Cyclic dependency detected for ' . $factory
+                );
+            }
+
+            $this->loading[$factory] = true;
+
             foreach ($arguments as $index => $argument) {
                 if (isset($context[$index])) {
                     continue;
@@ -73,6 +86,8 @@ class Registry implements RegistryInterface
             }
 
             $service = $refl->newInstanceArgs($context);
+
+            unset($this->loading[$factory]);
 
             return $this->services[$interface][$name] = $service;
         }
