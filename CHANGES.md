@@ -3,6 +3,7 @@
 ### Last Version
 
   * Interface as contract for the Registry class.
+  * Cyclic dependency detection.
 
 ### 0.2.0 (2014-10-04)
 
