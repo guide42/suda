@@ -2,6 +2,8 @@
 
 ### Last Version
 
+### 0.4.0 (2014-10-15)
+
   * [BC BREAK] Rename `registerFactory` to `registerDefinition`.
 
 ### 0.3.0 (2014-10-14)
