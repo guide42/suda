@@ -22,7 +22,7 @@ interface RegistryInterface
      * @param string $name
      * @param array  $arguments
      */
-    function registerFactory($factory, $name='', array $arguments=array());
+    function registerDefinition($factory, $name='', array $arguments=array());
 
     /**
      * Retrieve service.

@@ -75,7 +75,7 @@ For that you need to "define" the class of your service and the arguments it
 takes when it going to be created.
 
 ```php
-$registry->registerFactory(
+$registry->registerDefinition(
     '\Symfony\Component\Routing\Matcher\UrlMatcher',
     '',
     array(

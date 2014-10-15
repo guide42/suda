@@ -165,18 +165,18 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
      * @expectedException        \LogicException
      * @expectedExceptionMessage Factory must implement at least one interface
      */
-    public function testRegisterFactoryWithInvalid()
+    public function testRegisterDefinitionWithInvalid()
     {
         $registry = new Registry();
-        $registry->registerFactory("$this->ns\\InvalidService");
+        $registry->registerDefinition("$this->ns\\InvalidService");
     }
 
-    public function testRegisterFactory()
+    public function testRegisterDefinition()
     {
         $registry = new Registry();
-        $registry->registerFactory("$this->ns\\EvaPersonGreeter", 'eva', array(
-            'Guide42\Suda\Tests\Fixtures\Person',
-        ));
+        $registry->registerDefinition("$this->ns\\EvaPersonGreeter", 'eva',
+            array('Guide42\Suda\Tests\Fixtures\Person')
+        );
 
         $object = $registry->get("$this->ns\\PersonGreeterInterface", 'eva',
             array(new Bob())
@@ -186,13 +186,13 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('Hello Bob, my name is Eva', $object->greet());
     }
 
-    public function testRegisterFactoryWithoutContext()
+    public function testRegisterDefinitionWithoutContext()
     {
         $registry = new Registry();
         $registry->register(new Bob());
-        $registry->registerFactory("$this->ns\\EvaPersonGreeter", 'eva', array(
-            'Guide42\Suda\Tests\Fixtures\Person',
-        ));
+        $registry->registerDefinition("$this->ns\\EvaPersonGreeter", 'eva',
+            array('Guide42\Suda\Tests\Fixtures\Person')
+        );
 
         $object = $registry->get("$this->ns\\PersonGreeterInterface", 'eva');
 
@@ -200,11 +200,11 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('Hello Bob, my name is Eva', $object->greet());
     }
 
-    public function testRegisterFactoryWithArgumentName()
+    public function testRegisterDefinitionWithArgumentName()
     {
         $registry = new Registry();
         $registry->register(new Bob(), 'bob');
-        $registry->registerFactory("$this->ns\\EvaPersonGreeter", 'eva',
+        $registry->registerDefinition("$this->ns\\EvaPersonGreeter", 'eva',
             array( // arguments
                 array("$this->ns\\Person", 'bob'),
             )
@@ -216,11 +216,11 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('Hello Bob, my name is Eva', $object->greet());
     }
 
-    public function testRegisterFactoryWithArgumentLiteral()
+    public function testRegisterDefinitionWithArgumentLiteral()
     {
         $registry = new Registry();
         $registry->register(new Bob(), 'bob');
-        $registry->registerFactory("$this->ns\\EvaPersonGreeter", 'eva',
+        $registry->registerDefinition("$this->ns\\EvaPersonGreeter", 'eva',
             array( // arguments
                 array("$this->ns\\Person", 'bob'),
                 42
@@ -238,9 +238,9 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
     {
         $registry = new Registry();
         $registry->register(new GreeterService());
-        $registry->registerFactory("$this->ns\\EvaPersonGreeter", 'eva', array(
-            "$this->ns\\Person",
-        ));
+        $registry->registerDefinition("$this->ns\\EvaPersonGreeter", 'eva',
+            array("$this->ns\\Person")
+        );
 
         $services = $registry->getAll("$this->ns\\GreeterInterface");
 
@@ -261,13 +261,13 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
     {
         $registry = new Registry();
 
-        $registry->registerFactory("$this->ns\\EvaPersonGreeter", 'e1', array(
-            "$this->ns\\Person",
-        ));
+        $registry->registerDefinition("$this->ns\\EvaPersonGreeter", 'e1',
+            array("$this->ns\\Person")
+        );
 
-        $registry->registerFactory("$this->ns\\EvaPersonGreeter", 'e2', array(
-            "$this->ns\\Person",
-        ));
+        $registry->registerDefinition("$this->ns\\EvaPersonGreeter", 'e2',
+            array("$this->ns\\Person")
+        );
 
         $obj1 = $registry->get("$this->ns\\PersonGreeterInterface", 'e1',
             array(new Bob()));
@@ -286,13 +286,13 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
     {
         $registry = new Registry();
 
-        $registry->registerFactory("$this->ns\\Bob");
+        $registry->registerDefinition("$this->ns\\Bob");
 
-        $registry->registerFactory("$this->ns\\BobGreeter", '',
+        $registry->registerDefinition("$this->ns\\BobGreeter", '',
             array("$this->ns\\PersonGreeterInterface")
         );
 
-        $registry->registerFactory("$this->ns\\EvaPersonGreeter", '',
+        $registry->registerDefinition("$this->ns\\EvaPersonGreeter", '',
             array("$this->ns\\Person")
         );
 

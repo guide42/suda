@@ -7,7 +7,7 @@ class Registry implements RegistryInterface
     public $settings = array();
 
     private $services = array();
-    private $factories = array();
+    private $definitions = array();
 
     /* This contains the instances of \ReflectionClass that will
      * be used to create new instances of services */
@@ -32,8 +32,8 @@ class Registry implements RegistryInterface
         }
     }
 
-    public function registerFactory($factory, $name='',
-                              array $arguments=array()) {
+    public function registerDefinition($factory, $name='',
+                                 array $arguments=array()) {
         $interfaces = class_implements($factory);
 
         if (empty($interfaces)) {
@@ -43,7 +43,7 @@ class Registry implements RegistryInterface
         }
 
         foreach ($interfaces as $interface) {
-            $this->factories[$interface][$name] = array($factory, $arguments);
+            $this->definitions[$interface][$name] = array($factory, $arguments);
         }
     }
 
@@ -52,8 +52,8 @@ class Registry implements RegistryInterface
             return $this->services[$interface][$name];
         }
 
-        if (isset($this->factories[$interface][$name])) {
-            list($factory, $arguments) = $this->factories[$interface][$name];
+        if (isset($this->definitions[$interface][$name])) {
+            list($factory, $arguments) = $this->definitions[$interface][$name];
 
             if (isset($this->loading[$factory])) {
                 throw new \LogicException(
@@ -109,6 +109,6 @@ class Registry implements RegistryInterface
 
     public function has($interface, $name='') {
         return isset($this->services[$interface][$name]) ||
-               isset($this->factories[$interface][$name]);
+               isset($this->definitions[$interface][$name]);
     }
 }
