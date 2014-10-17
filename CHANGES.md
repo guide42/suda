@@ -3,6 +3,7 @@
 ### Last Version
 
   * [Delegate lookup](https://github.com/container-interop/container-interop/blob/delegate-lookup/docs/Delegate-lookup.md).
+  * Compatible with Container Interoperability.
 
 ### 0.5.0 (2014-10-17)
 
