@@ -16,13 +16,22 @@ interface RegistryInterface
     function register($service, $name='');
 
     /**
+     * Register a closure that will instantiate the service.
+     *
+     * @param array    $interfaces
+     * @param \Closure $factory
+     * @param string   $name
+     */
+    function registerFactory($interfaces, \Closure $factory, $name='');
+
+    /**
      * Define a service to be created when called.
      *
      * @param string $factory
      * @param string $name
      * @param array  $arguments
      */
-    function registerDefinition($factory, $name='', array $arguments=array());
+    function registerDefinition($class, $name='', array $args=array());
 
     /**
      * Retrieve service.
