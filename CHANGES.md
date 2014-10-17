@@ -2,8 +2,11 @@
 
 ### Last Version
 
+### 0.5.0 (2014-10-17)
+
   * New `registerFactory` method that let you use a closure to create
     the service.
+  * Sort parameters before call factory/class constructor.
 
 ### 0.4.0 (2014-10-15)
 
