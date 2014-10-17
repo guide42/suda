@@ -1,3 +1,4 @@
 vendor/
 htmlcov/
 build/
+composer.lock
