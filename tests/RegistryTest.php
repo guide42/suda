@@ -7,6 +7,7 @@ use Guide42\Suda\Registry;
 use Guide42\Suda\Tests\Fixtures\InvalidService;
 use Guide42\Suda\Tests\Fixtures\GreeterService;
 use Guide42\Suda\Tests\Fixtures\PersonGreeter;
+use Guide42\Suda\Tests\Fixtures\Person;
 use Guide42\Suda\Tests\Fixtures\Bob;
 
 class RegistryTest extends \PHPUnit_Framework_TestCase
@@ -297,5 +298,19 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
         );
 
         $registry->get("$this->ns\\GreeterInterface");
+    }
+
+    public function testRegisterFactory()
+    {
+        $registry = new Registry();
+        $registry->register(new Bob());
+        $registry->registerFactory("$this->ns\\PersonGreeterInterface", function(Person $person) {
+            return new PersonGreeter($person);
+        });
+
+        $object = $registry->get("$this->ns\\PersonGreeterInterface");
+
+        $this->assertInstanceOf("$this->ns\\PersonGreeter", $object);
+        $this->assertEquals('Hello Bob', $object->greet());
     }
 }

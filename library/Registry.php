@@ -7,6 +7,7 @@ class Registry implements RegistryInterface
     public $settings = array();
 
     private $services = array();
+    private $factories = array();
     private $definitions = array();
 
     /* This contains the instances of \ReflectionClass that will
@@ -32,6 +33,24 @@ class Registry implements RegistryInterface
         }
     }
 
+    public function registerFactory($interfaces, \Closure $factory, $name='') {
+        $refl = new \ReflectionFunction($factory);
+        $reflParams = $refl->getParameters();
+
+        $params = array();
+        foreach ($reflParams as $pos => $relfParam) {
+            if ($relfParam->isDefaultValueAvailable()) {
+                $params[$pos] = $relfParam->getDefaultValue();
+            } elseif (($classHint = $relfParam->getClass()) !== null) {
+                $params[$pos] = $classHint->getName();
+            }
+        }
+
+        foreach ((array) $interfaces as $interface) {
+            $this->factories[$interfaces][$name] = array($factory, $params);
+        }
+    }
+
     public function registerDefinition($class, $name='', array $args=array()) {
         $interfaces = class_implements($class);
 
@@ -49,6 +68,26 @@ class Registry implements RegistryInterface
     public function get($interface, $name='', array $context=array()) {
         if (isset($this->services[$interface][$name])) {
             return $this->services[$interface][$name];
+        }
+
+        if (isset($this->factories[$interface][$name])) {
+            list($factory, $arguments) = $this->factories[$interface][$name];
+
+            foreach ($arguments as $index => $argument) {
+                if (isset($context[$index])) {
+                    continue;
+                }
+
+                if (is_string($argument) && $this->has($argument)) {
+                    $context[$index] = $this->get($argument);
+                } else {
+                    $context[$index] = $argument;
+                }
+            }
+
+            $service = call_user_func_array($factory, $context);
+
+            return $this->services[$interface][$name] = $service;
         }
 
         if (isset($this->definitions[$interface][$name])) {
