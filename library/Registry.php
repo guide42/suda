@@ -85,6 +85,8 @@ class Registry implements RegistryInterface
                 }
             }
 
+            ksort($context);
+
             $service = call_user_func_array($factory, $context);
 
             return $this->services[$interface][$name] = $service;
@@ -115,6 +117,8 @@ class Registry implements RegistryInterface
                     $context[$index] = $argument;
                 }
             }
+
+            ksort($context);
 
             if (isset($this->reflcache[$class])) {
                 $refl = $this->reflcache[$class];
