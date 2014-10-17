@@ -19,6 +19,23 @@ class Registry implements RegistryInterface
      * true as value */
     private $loading = array();
 
+    /**
+     * @var \Guide42\Suda\RegistryInterface
+     */
+    private $delegate;
+
+    public function __construct($delegate=null) {
+        if ($delegate === null) {
+            $delegate = $this;
+        }
+
+        $this->delegate = $delegate;
+    }
+
+    public function setDelegateLookupContainer(RegistryInterface $delegate) {
+        $this->delegate = $delegate;
+    }
+
     public function register($service, $name='') {
         $interfaces = class_implements($service);
 
@@ -79,7 +96,7 @@ class Registry implements RegistryInterface
                 }
 
                 if (is_string($argument) && $this->has($argument)) {
-                    $context[$index] = $this->get($argument);
+                    $context[$index] = $this->delegate->get($argument);
                 } else {
                     $context[$index] = $argument;
                 }
@@ -109,10 +126,13 @@ class Registry implements RegistryInterface
                 }
 
                 if (is_string($argument) && $this->has($argument)) {
-                    $context[$index] = $this->get($argument);
+                    $context[$index] = $this->delegate->get($argument);
                 } elseif (is_array($argument) && count($argument) === 2 &&
                           $this->has($argument[0], $argument[1])) {
-                    $context[$index] = $this->get($argument[0], $argument[1]);
+                    $context[$index] = $this->delegate->get(
+                        $argument[0],
+                        $argument[1]
+                    );
                 } else {
                     $context[$index] = $argument;
                 }

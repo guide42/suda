@@ -319,4 +319,36 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf("$this->ns\\PersonGreeter", $object);
         $this->assertEquals('Hello Bob', $object->greet());
     }
+
+    public function testDelegateLookup()
+    {
+        $registry0 = new Registry();
+        $registry0->register(new GreeterService('Mundo'));
+
+        $registry1 = new Registry($registry0);
+        $registry1->registerDefinition("$this->ns\\BobGreeter", '',
+            array("$this->ns\\GreeterInterface")
+        );
+
+        $greeter = $registry1->get("$this->ns\\GreeterPersonInterface");
+
+        $this->assertInstanceOf("$this->ns\\BobGreeter", $greeter);
+        $this->assertEquals('Bob says Hello Mundo', $greeter->greet());
+    }
+
+    public function testSetDelegateLookupContainer()
+    {
+        $registry0 = new Registry();
+        $registry0->register(new GreeterService('Mundo'));
+
+        $registry1 = new Registry();
+        $registry1->setDelegateLookupContainer($registry0);
+        $registry1->registerDefinition("$this->ns\\BobGreeter", '',
+            array("$this->ns\\GreeterInterface")
+        );
+
+        $greeter = $registry1->get("$this->ns\\GreeterPersonInterface");
+
+        $this->assertInstanceOf("$this->ns\\BobGreeter", $greeter);
+    }
 }

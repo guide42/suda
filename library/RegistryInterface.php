@@ -8,6 +8,14 @@ namespace Guide42\Suda;
 interface RegistryInterface
 {
     /**
+     * All dependencies lookup will be delegated to this registry. The default
+     * values is the registry itself.
+     *
+     * @param \Guide42\Suda\RegistryInterface $delegate
+     */
+    function setDelegateLookupContainer(RegistryInterface $delegate);
+
+    /**
      * Add a service to the container.
      *
      * @param object $service

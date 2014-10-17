@@ -2,6 +2,8 @@
 
 ### Last Version
 
+  * [Delegate lookup](https://github.com/container-interop/container-interop/blob/delegate-lookup/docs/Delegate-lookup.md).
+
 ### 0.5.0 (2014-10-17)
 
   * New `registerFactory` method that let you use a closure to create
