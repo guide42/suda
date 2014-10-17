@@ -351,4 +351,12 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf("$this->ns\\BobGreeter", $greeter);
     }
+
+    public function testIsInteropContainerInterface()
+    {
+        $registry = new Registry();
+        $interface = 'Interop\Container\ContainerInterface';
+
+        $this->assertInstanceOf($interface, $registry);
+    }
 }

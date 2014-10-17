@@ -40,8 +40,9 @@ class Registry implements RegistryInterface
         $interfaces = class_implements($service);
 
         if (empty($interfaces)) {
-            throw new \LogicException(
-                'Service must implement at least one interface'
+            throw new Exception\RegistryException(
+                'Service must implement at least one interface',
+                Exception\RegistryException::MUST_IMPLEMENT_INTERFACE
             );
         }
 
@@ -72,8 +73,9 @@ class Registry implements RegistryInterface
         $interfaces = class_implements($class);
 
         if (empty($interfaces)) {
-            throw new \LogicException(
-                'Factory must implement at least one interface'
+            throw new Exception\RegistryException(
+                'Factory must implement at least one interface',
+                Exception\RegistryException::MUST_IMPLEMENT_INTERFACE
             );
         }
 
@@ -154,7 +156,7 @@ class Registry implements RegistryInterface
             return $this->services[$interface][$name] = $service;
         }
 
-        throw new \RuntimeException(
+        throw new Exception\NotFoundException(
             "Service \"$name\" for $interface not found"
         );
     }
@@ -164,7 +166,7 @@ class Registry implements RegistryInterface
             return $this->services[$interface];
         }
 
-        throw new \RuntimeException(
+        throw new Exception\NotFoundException(
             "Services for $interface not found"
         );
     }

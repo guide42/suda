@@ -5,7 +5,7 @@ namespace Guide42\Suda;
 /**
  * Service container/registry.
  */
-interface RegistryInterface
+interface RegistryInterface extends \Interop\Container\ContainerInterface
 {
     /**
      * All dependencies lookup will be delegated to this registry. The default
