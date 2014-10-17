@@ -32,9 +32,8 @@ class Registry implements RegistryInterface
         }
     }
 
-    public function registerDefinition($factory, $name='',
-                                 array $arguments=array()) {
-        $interfaces = class_implements($factory);
+    public function registerDefinition($class, $name='', array $args=array()) {
+        $interfaces = class_implements($class);
 
         if (empty($interfaces)) {
             throw new \LogicException(
@@ -43,7 +42,7 @@ class Registry implements RegistryInterface
         }
 
         foreach ($interfaces as $interface) {
-            $this->definitions[$interface][$name] = array($factory, $arguments);
+            $this->definitions[$interface][$name] = array($class, $args);
         }
     }
 
@@ -53,15 +52,15 @@ class Registry implements RegistryInterface
         }
 
         if (isset($this->definitions[$interface][$name])) {
-            list($factory, $arguments) = $this->definitions[$interface][$name];
+            list($class, $arguments) = $this->definitions[$interface][$name];
 
-            if (isset($this->loading[$factory])) {
+            if (isset($this->loading[$class])) {
                 throw new \LogicException(
-                    'Cyclic dependency detected for ' . $factory
+                    "Cyclic dependency detected for $class"
                 );
             }
 
-            $this->loading[$factory] = true;
+            $this->loading[$class] = true;
 
             foreach ($arguments as $index => $argument) {
                 if (isset($context[$index])) {
@@ -78,16 +77,16 @@ class Registry implements RegistryInterface
                 }
             }
 
-            if (isset($this->reflcache[$factory])) {
-                $refl = $this->reflcache[$factory];
+            if (isset($this->reflcache[$class])) {
+                $refl = $this->reflcache[$class];
             } else {
-                $refl = $this->reflcache[$factory]
-                      = new \ReflectionClass($factory);
+                $refl = $this->reflcache[$class]
+                      = new \ReflectionClass($class);
             }
 
             $service = $refl->newInstanceArgs($context);
 
-            unset($this->loading[$factory]);
+            unset($this->loading[$class]);
 
             return $this->services[$interface][$name] = $service;
         }

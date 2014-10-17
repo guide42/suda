@@ -68,7 +68,7 @@ services that implement a given interface.
 $loggers = $registry->getAll('\Psr\Log\LoggerInterface');
 ```
 
-### Register Service Factories
+### Register Service by Definition
 
 You can also give *Suda* the power to create the instances of your services.
 For that you need to "define" the class of your service and the arguments it
@@ -86,8 +86,8 @@ $registry->registerDefinition(
 ```
 
 And you retrieve as a normal service with a third argument of the context that
-replace the original arguments you define for your factory. If you skip one
-argument in the context, *Suda* will try to get it from itself.
+replace the original arguments you define. If you skip one argument in the
+context, *Suda* will try to get it from itself.
 
 ```php
 $urlMatcher = $registry->get(
