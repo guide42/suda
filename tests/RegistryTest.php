@@ -304,11 +304,17 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
     {
         $registry = new Registry();
         $registry->register(new Bob());
-        $registry->registerFactory("$this->ns\\PersonGreeterInterface", function(Person $person) {
+        $registry->registerFactory("$this->ns\\PersonGreeterInterface",
+        function(Person $person, $debug=false, $swag='optional') {
+            if ($debug) {
+                // Do something
+            }
             return new PersonGreeter($person);
         });
 
-        $object = $registry->get("$this->ns\\PersonGreeterInterface");
+        $object = $registry->get("$this->ns\\PersonGreeterInterface", '',
+            array(1 => true)
+        );
 
         $this->assertInstanceOf("$this->ns\\PersonGreeter", $object);
         $this->assertEquals('Hello Bob', $object->greet());
