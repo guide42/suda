@@ -100,6 +100,28 @@ $urlMatcher = $registry->get(
 );
 ```
 
+### Register Service Factory
+
+Finally, you can register a closure that will create the service you need. You
+need to specify which interfaces it provides and a closure that takes it
+requirements as parameters.
+
+```php
+use Symfony\Component\Translation\Translator;
+use Symfony\Component\Translation\MessageSelector;
+
+$registry->register(new MessageSelector());
+$registry->registerFactory(
+    array('\Symfony\Component\Translation\TranslatorInterface'),
+    function(MessageSelector $messageSelector, $locale='fr_FR') {
+        return new Translator($locale, $messageSelector);
+    }
+);
+
+$translator = $registry->get('\Symfony\Component\Translation\TranslatorInterface');
+$translator->getLocale() === 'fr_FR'; // TRUE
+```
+
 Badges
 ------
 

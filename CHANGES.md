@@ -2,6 +2,9 @@
 
 ### Last Version
 
+  * New `registerFactory` method that let you use a closure to create
+    the service.
+
 ### 0.4.0 (2014-10-15)
 
   * [BC BREAK] Rename `registerFactory` to `registerDefinition`.
