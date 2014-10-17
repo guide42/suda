@@ -10,7 +10,9 @@ php:
 before_script:
  - composer self-update
  - composer install
+ - mkdir -p build/logs
 
 script:
- - phpunit --coverage-text
+ - phpunit --coverage-clover build/logs/clover.xml
+ - php vendor/bin/coveralls -v
 

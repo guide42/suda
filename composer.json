@@ -16,6 +16,9 @@
         "php": ">=5.3",
         "container-interop/container-interop": "~1.0"
     },
+    "require-dev": {
+        "satooshi/php-coveralls": "@stable"
+    },
     "autoload": {
         "psr-4": {
             "Guide42\\Suda\\": "library/"
