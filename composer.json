@@ -2,7 +2,7 @@
     "name": "guide42/suda",
     "type": "library",
     "description": "PHP Registry",
-    "keywords": ["registry", "container", "di"],
+    "keywords": ["registry", "container", "di", "dependency injection"],
     "license": "ISC",
     "authors": [
         {
