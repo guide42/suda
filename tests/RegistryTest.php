@@ -1,18 +1,18 @@
 <?php
 
-namespace Guide42\Suda\Tests;
+namespace Guide42\SudaTest;
 
 use Guide42\Suda\Registry;
 
-use Guide42\Suda\Tests\Fixtures\InvalidService;
-use Guide42\Suda\Tests\Fixtures\GreeterService;
-use Guide42\Suda\Tests\Fixtures\PersonGreeter;
-use Guide42\Suda\Tests\Fixtures\Person;
-use Guide42\Suda\Tests\Fixtures\Bob;
+use Guide42\SudaTest\Fixtures\InvalidService;
+use Guide42\SudaTest\Fixtures\GreeterService;
+use Guide42\SudaTest\Fixtures\PersonGreeter;
+use Guide42\SudaTest\Fixtures\Person;
+use Guide42\SudaTest\Fixtures\Bob;
 
 class RegistryTest extends \PHPUnit_Framework_TestCase
 {
-    private $ns = 'Guide42\\Suda\\Tests\\Fixtures';
+    private $ns = 'Guide42\\SudaTest\\Fixtures';
 
     public function testSettings()
     {
@@ -56,7 +56,7 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException        \RuntimeException
-     * @expectedExceptionMessage Service "" for Guide42\Suda\Tests\Fixtures\GreeterService not found
+     * @expectedExceptionMessage Service "" for Guide42\SudaTest\Fixtures\GreeterService not found
      */
     public function testGetWithClassThrowsLookupException()
     {
@@ -176,7 +176,7 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
     {
         $registry = new Registry();
         $registry->registerDefinition("$this->ns\\EvaPersonGreeter", 'eva',
-            array('Guide42\Suda\Tests\Fixtures\Person')
+            array("$this->ns\\Person")
         );
 
         $object = $registry->get("$this->ns\\PersonGreeterInterface", 'eva',
@@ -192,7 +192,7 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
         $registry = new Registry();
         $registry->register(new Bob());
         $registry->registerDefinition("$this->ns\\EvaPersonGreeter", 'eva',
-            array('Guide42\Suda\Tests\Fixtures\Person')
+            array("$this->ns\\Person")
         );
 
         $object = $registry->get("$this->ns\\PersonGreeterInterface", 'eva');
@@ -281,7 +281,7 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException        \LogicException
-     * @expectedExceptionMessage Cyclic dependency detected for Guide42\Suda\Tests\Fixtures\EvaPersonGreeter
+     * @expectedExceptionMessage Cyclic dependency detected for Guide42\SudaTest\Fixtures\EvaPersonGreeter
      */
     public function testRecursivity()
     {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Guide42\Suda\Tests\Fixtures;
+namespace Guide42\SudaTest\Fixtures;
 
 class EvaPersonGreeter extends PersonPersonGreeter
 {
