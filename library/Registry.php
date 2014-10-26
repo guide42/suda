@@ -92,21 +92,8 @@ class Registry implements RegistryInterface
         if (isset($this->factories[$interface][$name])) {
             list($factory, $arguments) = $this->factories[$interface][$name];
 
-            foreach ($arguments as $index => $argument) {
-                if (isset($context[$index])) {
-                    continue;
-                }
-
-                if (is_string($argument) && $this->has($argument)) {
-                    $context[$index] = $this->delegate->get($argument);
-                } else {
-                    $context[$index] = $argument;
-                }
-            }
-
-            ksort($context);
-
-            $service = call_user_func_array($factory, $context);
+            $parameters = $this->mergeContext($arguments, $context);
+            $service = call_user_func_array($factory, $parameters);
 
             return $this->services[$interface][$name] = $service;
         }
@@ -123,26 +110,6 @@ class Registry implements RegistryInterface
 
             $this->loading[$class] = true;
 
-            foreach ($arguments as $index => $argument) {
-                if (isset($context[$index])) {
-                    continue;
-                }
-
-                if (is_string($argument) && $this->has($argument)) {
-                    $context[$index] = $this->delegate->get($argument);
-                } elseif (is_array($argument) && count($argument) === 2 &&
-                          $this->has($argument[0], $argument[1])) {
-                    $context[$index] = $this->delegate->get(
-                        $argument[0],
-                        $argument[1]
-                    );
-                } else {
-                    $context[$index] = $argument;
-                }
-            }
-
-            ksort($context);
-
             if (isset($this->reflcache[$class])) {
                 $refl = $this->reflcache[$class];
             } else {
@@ -150,7 +117,8 @@ class Registry implements RegistryInterface
                       = new \ReflectionClass($class);
             }
 
-            $service = $refl->newInstanceArgs($context);
+            $parameters = $this->mergeContext($arguments, $context);
+            $service = $refl->newInstanceArgs($parameters);
 
             unset($this->loading[$class]);
 
@@ -175,5 +143,21 @@ class Registry implements RegistryInterface
     public function has($interface, $name='') {
         return isset($this->services[$interface][$name]) ||
                isset($this->definitions[$interface][$name]);
+    }
+
+    private function mergeContext(array $arguments, array $parameters) {
+        $context = array_replace($arguments, $parameters);
+
+        foreach ($context as $index => $value) {
+            if (is_string($value) && $this->has($value)) {
+                $context[$index] = $this->delegate->get($value);
+            } elseif (is_array($value) && count($value) === 2 &&
+                $this->has($value[0], $value[1])
+            ) {
+                $context[$index] = $this->delegate->get($value[0], $value[1]);
+            }
+        }
+
+        return $context;
     }
 }
