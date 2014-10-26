@@ -92,7 +92,7 @@ class Registry implements RegistryInterface
         if (isset($this->factories[$interface][$name])) {
             list($factory, $arguments) = $this->factories[$interface][$name];
 
-            $parameters = $this->mergeContext($arguments, $context);
+            $parameters = $this->buildContext($arguments, $context);
             $service = call_user_func_array($factory, $parameters);
 
             return $this->services[$interface][$name] = $service;
@@ -117,7 +117,7 @@ class Registry implements RegistryInterface
                       = new \ReflectionClass($class);
             }
 
-            $parameters = $this->mergeContext($arguments, $context);
+            $parameters = $this->buildContext($arguments, $context);
             $service = $refl->newInstanceArgs($parameters);
 
             unset($this->loading[$class]);
@@ -145,7 +145,7 @@ class Registry implements RegistryInterface
                isset($this->definitions[$interface][$name]);
     }
 
-    private function mergeContext(array $arguments, array $parameters) {
+    private function buildContext(array $arguments, array $parameters) {
         $context = array_replace($arguments, $parameters);
 
         foreach ($context as $index => $value) {
