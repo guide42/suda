@@ -115,8 +115,9 @@ class Registry implements RegistryInterface
             list($class, $arguments) = $this->definitions[$interface][$name];
 
             if (isset($this->loading[$class])) {
-                throw new \LogicException(
-                    "Cyclic dependency detected for $class"
+                throw new Exception\RegistryException(
+                    "Cyclic dependency detected for $class",
+                    Exception\RegistryException::CYCLIC_DEPENDENCY_DETECTED
                 );
             }
 
