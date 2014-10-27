@@ -1,4 +1,4 @@
-vendor/
-htmlcov/
-build/
-composer.lock
+/build/
+/htmlcov/
+/vendor/
+/composer.lock
