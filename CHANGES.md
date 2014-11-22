@@ -2,6 +2,8 @@
 
 ### Last Version
 
+  * Simple configuration loader.
+
 ### 0.6.0 (2014-10-19)
 
   * [Delegate lookup](https://github.com/container-interop/container-interop/blob/delegate-lookup/docs/Delegate-lookup.md).
