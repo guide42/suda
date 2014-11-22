@@ -3,6 +3,7 @@
 ### Last Version
 
   * Simple configuration loader.
+  * Import config with delegate.
 
 ### 0.6.0 (2014-10-19)
 
