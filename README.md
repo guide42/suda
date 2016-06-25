@@ -5,7 +5,11 @@ Suda is a lightweight container for your services.
 
 This library is compatible with [Container Interoperability][].
 
+This is **UNMAINTAINED**. Check [Auryn][] or [Dice][].
+
 [Container Interoperability]: https://github.com/container-interop/container-interop
+[Auryn]: https://github.com/rdlowrey/auryn
+[Dice]: https://github.com/Level-2/Dice
 
 Usage
 -----
