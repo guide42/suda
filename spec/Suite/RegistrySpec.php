@@ -70,6 +70,40 @@ describe('Registry', function() {
             expect($di->offsetGet(Engine::class))->toBeAnInstanceOf(V8::class);
         });
 
+        it('assigns stacked factories, next is make function called without arguments', function() {
+            $v8 = null;
+            $count = 0;
+
+            $di = new Registry;
+            $di->offsetSet(Engine::class, function($c, $make) use(&$v8, &$count) {
+                $v8 = new V8;
+                $count++;
+
+                return $v8;
+            });
+            $di->offsetSet(Engine::class, function($c, $make) use(&$v8, &$count) {
+                $service = $make();
+                $count++;
+
+                expect($service)->toBe($v8);
+
+                return new V8;
+            });
+
+            expect($di->offsetGet(Engine::class))->toBeAnInstanceOf(V8::class)->not->toBe($v8);
+            expect($count)->toBe(2);
+        });
+
+        it('assigns last factory', function() {
+            $di = new Registry;
+            $di->offsetSet(Engine::class, V8::class);
+            $di->offsetSet(Engine::class, function() {
+                return new W16(new V8, new V8);
+            });
+
+            expect($di->offsetGet(Engine::class))->toBeAnInstanceOf(W16::class);
+        });
+
         it('throws InvalidArgumentException when is not class nor callable', function() {
             $di = new Registry;
 

@@ -33,7 +33,7 @@ class Registry implements \ArrayAccess
                 throw new \InvalidArgumentException('Service factory must be callable');
             }
 
-            /*if (isset($this->factories[$key])) {
+            if (isset($this->factories[$key])) {
                 $prev = $this->factories[$key];
                 $value = function(self $self, callable $make) use($value, $prev) {
                     return $value($self, function(string $dep=null, array $args=[]) use($prev, $self, $make) {
@@ -43,7 +43,7 @@ class Registry implements \ArrayAccess
                         return $make($dep, $args);
                     });
                 };
-            }*/
+            }
 
             $this->factories[$key] = $value;
             $this->keys[$key] = count($this->keys);

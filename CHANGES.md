@@ -3,6 +3,7 @@
 ### 0.8.0
 
   - Cyclic dependency detection.
+  - Stack factories.
 
 ### 0.7.0
 
