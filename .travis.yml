@@ -1,15 +1,15 @@
 language: php
 
 php:
- - 7.1
- - hhvm
+  - 7.1
+  - hhvm
 
 before_script:
- - composer self-update
- - composer install
- - mkdir -p build/logs
+  - composer install --dev --no-interaction --prefer-dist
+  - mkdir -p build/logs/
 
 script:
- - phpunit --coverage-clover build/logs/clover.xml
- - php vendor/bin/coveralls -v
+  - php vendor/bin/kahlan --cc=true --coverage=4 --clover=build/logs/clover.xml
 
+after_success:
+  - php vendor/bin/coveralls.php -v

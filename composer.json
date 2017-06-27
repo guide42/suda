@@ -11,11 +11,12 @@
         "psr-4": {"suda\\": "library/"}
     },
     "require-dev": {
-        "kahlan/kahlan": "*"
+        "kahlan/kahlan": "@stable",
+        "satooshi/php-coveralls": "@stable"
     },
     "require": {
         "php": ">=7.0",
-        "psr/container": "*"
+        "psr/container": "@stable"
     },
     "provide": {
         "psr/container-implementation": "1.0"
