@@ -5,6 +5,8 @@
   - Cyclic dependency detection.
   - Stack factories.
   - Delegate can be changed with `Registry::withDelegate`.
+  - Define concrete class with arguments.
+  - Resolve given arguments from delegate.
 
 ### 0.7.0
 

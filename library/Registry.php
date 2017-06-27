@@ -153,9 +153,9 @@ class Registry implements \ArrayAccess
         /** @var \ReflectionParameter $param */
         foreach ($parameters as $index => $param) {
             if (isset($arguments[$param->getPosition()])) {
-                $context[$index] = $arguments[$param->getPosition()];
+                $context[$index] = $this->delegate[$arguments[$param->getPosition()]] ?? $arguments[$param->getPosition()];
             } elseif (isset($arguments[$param->getName()])) {
-                $context[$index] = $arguments[$param->getName()];
+                $context[$index] = $this->delegate[$arguments[$param->getName()]] ?? $arguments[$param->getName()];
             } elseif ($param->hasType() && !$param->getType()->isBuiltin() && isset($this->delegate[strval($param->getType())])) {
                 $context[$index] = $this->delegate[strval($param->getType())];
             } elseif (isset($this->delegate[$param->getName()])) {

@@ -336,11 +336,25 @@ describe('Registry', function() {
             expect($di->make(W16::class, [$v8, $v8]))->toBeAnInstanceOf(W16::class);
         });
 
+        it('creates a concrete class by resolving given arguments from position', function() {
+            $di = new Registry;
+            $di->offsetSet(V8::class, V8::class);
+
+            expect($di->make(W16::class, [V8::class, V8::class]))->toBeAnInstanceOf(W16::class);
+        });
+
         it('creates a concrete class with given arguments from name', function() {
             $di = new Registry;
             $v8 = new V8;
 
             expect($di->make(W16::class, ['left' => $v8, 'right' => $v8]))->toBeAnInstanceOf(W16::class);
+        });
+
+        it('creates a concrete class by resolving given arguments from name', function() {
+            $di = new Registry;
+            $di->offsetSet(V8::class, V8::class);
+
+            expect($di->make(W16::class, ['left' => V8::class, 'right' => V8::class]))->toBeAnInstanceOf(W16::class);
         });
 
         it('creates a concrete class with delegate lookup the parameter type hint', function() {
