@@ -44,7 +44,7 @@ class Registry implements \ArrayAccess
                 $prev = $this->factories[$key];
                 $value = function(self $self, callable $make) use($value, $prev) {
                     return $value($self, function(string $dep=null, array $args=[]) use($prev, $self, $make) {
-                        if (is_null($dep)) {
+                        if (is_null($dep) && empty($args)) {
                             return $prev($self, $make);
                         }
                         return $make($dep, $args);
@@ -68,7 +68,7 @@ class Registry implements \ArrayAccess
 
         if (isset($this->factories[$key])) {
             $service = $this->factories[$key]($this, function(string $dep=null, array $args=[]) use($key) {
-                if (is_null($dep)) {
+                if (is_null($dep) && empty($args)) {
                     return $this->delegate[$key];
                 }
                 return $this->delegate->make($dep, $args);
