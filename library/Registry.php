@@ -30,6 +30,7 @@ class Registry implements \ArrayAccess
             $this->values[$key] = $value;
             $this->keys[$key] = count($this->keys);
         } else {
+            // $this[Engine::class] = V8::class;
             if (is_string($value) && class_exists($value, false)) {
                 $value = function(self $self, callable $make) use($value) {
                     return $make($value);
@@ -68,6 +69,8 @@ class Registry implements \ArrayAccess
 
         if (isset($this->factories[$key])) {
             $service = $this->factories[$key]($this, function(string $dep=null, array $args=[]) use($key) {
+                // $dep should be a concrete class or null
+                // $key could be abstract or interface
                 if (is_null($dep) && empty($args)) {
                     return $this->delegate[$key];
                 }
