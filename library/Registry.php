@@ -89,7 +89,7 @@ class Registry implements \ArrayAccess
                 if (is_null($dep) && empty($args)) {
                     return $this->delegate[$key];
                 }
-                return $this->delegate->make($dep, $args);
+                return $this->make($dep, $args);
             });
 
             if (!$service instanceof $key) {
