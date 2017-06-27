@@ -26,6 +26,10 @@ class Registry implements \ArrayAccess
     }
 
     function offsetSet($key, $value) {
+        if (!is_string($key)) {
+            throw new \TypeError('Entry must be string');
+        }
+
         if (!interface_exists($key, false) && !class_exists($key, false)) {
             $this->values[$key] = $value;
             $this->keys[$key] = count($this->keys);
@@ -64,6 +68,10 @@ class Registry implements \ArrayAccess
     }
 
     function offsetGet($key) {
+        if (!is_string($key)) {
+            throw new \TypeError('Entry must be string');
+        }
+
         if (isset($this->values[$key])) {
             if (method_exists($this->values[$key], '__invoke')) {
                 return $this->values[$key]($this);
@@ -93,11 +101,16 @@ class Registry implements \ArrayAccess
     }
 
     function offsetExists($key) {
+        if (!is_string($key)) {
+            return false;
+        }
         return isset($this->keys[$key]);
     }
 
     function offsetUnset($key) {
-        unset($this->keys[$key], $this->values[$key], $this->factories[$key]);
+        if (is_string($key)) {
+            unset($this->keys[$key], $this->values[$key], $this->factories[$key]);
+        }
     }
 
     function make(string $class, array $arguments=[]) {

@@ -144,6 +144,15 @@ describe('Registry', function() {
             })
             ->toThrow(new InvalidArgumentException('Service factory must be callable'));
         });
+
+        it('throw TypeError when key is not string', function() {
+            $di = new Registry;
+
+            expect(function() use($di) {
+                $di->offsetSet(new stdClass, 'value');
+            })
+            ->toThrow(new TypeError('Entry must be string'));
+        });
     });
 
     describe('offsetGet', function() {
@@ -250,6 +259,15 @@ describe('Registry', function() {
             })
             ->toThrow(new RuntimeException('Entry [not_found] not found'));
         });
+
+        it('throw TypeError when key is not string', function() {
+            $di = new Registry;
+
+            expect(function() use($di) {
+                $di->offsetGet(new stdClass);
+            })
+            ->toThrow(new TypeError('Entry must be string'));
+        });
     });
 
     describe('offsetExists', function() {
@@ -271,6 +289,10 @@ describe('Registry', function() {
         it('returns false if key not found', function() {
             expect((new Registry)->offsetExists('not_found'))->toBe(false);
         });
+
+        it('returns false if key is not string', function() {
+            expect((new Registry)->offsetExists(new stdClass))->toBe(false);
+        });
     });
 
     describe('offsetUnset', function() {
@@ -287,6 +309,18 @@ describe('Registry', function() {
 
             expect($di->offsetExists('param'))->toBe(false);
             expect($di->offsetExists(Engine::class))->toBe(false);
+        });
+
+        it('does nothing if key is not string', function() {
+            $di = new Registry;
+            $key = new stdClass;
+
+            unset($di[$key]);
+
+            expect(function() use($di, $key) {
+                $di->offsetGet($key);
+            })
+            ->toThrow(new TypeError('Entry must be string'));
         });
     });
 
