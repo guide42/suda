@@ -148,26 +148,43 @@ class Registry implements \ArrayAccess
         return $service;
     }
 
+    /** @param array[\ReflectionParameter] $parameters */
     private function buildContext(array $parameters, array $arguments) {
-        $parameters = array_filter($parameters, function(\ReflectionParameter $param) { return true; });
+        $parameters = array_filter($parameters, function(\ReflectionParameter $param) {
+            return true;
+        });
+
         $context = [];
+        $resolve = function($value) {
+            if (is_string($value)) {
+                if (strncmp($value, '$', 1) === 0) {
+                    return $this->delegate[substr($value, 1)];
+                }
+                if (interface_exists($value, false) || class_exists($value, false)) {
+                    return $this->delegate[$value];
+                }
+            }
+            return $value;
+        };
 
         /** @var \ReflectionParameter $param */
         foreach ($parameters as $index => $param) {
+            $name = $param->getName();
+
             if (isset($arguments[$param->getPosition()])) {
-                $context[$index] = $this->delegate[$arguments[$param->getPosition()]] ?? $arguments[$param->getPosition()];
-            } elseif (isset($arguments[$param->getName()])) {
-                $context[$index] = $this->delegate[$arguments[$param->getName()]] ?? $arguments[$param->getName()];
+                $context[$index] = $resolve($arguments[$param->getPosition()]);
+            } elseif (isset($arguments[$name])) {
+                $context[$index] = $resolve($arguments[$name]);
             } elseif ($param->hasType() && !$param->getType()->isBuiltin() && isset($this->delegate[strval($param->getType())])) {
                 $context[$index] = $this->delegate[strval($param->getType())];
-            } elseif (isset($this->delegate[$param->getName()])) {
-                $context[$index] = $this->delegate[$param->getName()];
+            } elseif (isset($this->delegate[$name])) {
+                $context[$index] = $this->delegate[$name];
             } elseif ($param->isDefaultValueAvailable()) {
                 $context[$index] = $param->getDefaultValue();
             } elseif ($param->isOptional() && !$param->isVariadic()) {
                 $context[$index] = null;
             } else {
-                throw new \LogicException(sprintf('Parameter [%s] not found for [%s]', $param->getName(),
+                throw new \LogicException(sprintf('Parameter [%s] not found for [%s]', $name,
                     key($this->loading)
                 ));
             }

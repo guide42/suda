@@ -350,11 +350,19 @@ describe('Registry', function() {
             expect($di->make(W16::class, ['left' => $v8, 'right' => $v8]))->toBeAnInstanceOf(W16::class);
         });
 
-        it('creates a concrete class by resolving given arguments from name', function() {
+        it('creates a concrete class resolving dependency by class in the argument', function() {
             $di = new Registry;
             $di->offsetSet(V8::class, V8::class);
 
             expect($di->make(W16::class, ['left' => V8::class, 'right' => V8::class]))->toBeAnInstanceOf(W16::class);
+        });
+
+        it('creates a concrete class resolving dependency by param in the argument prefixed with dollar sign', function() {
+            $di = new Registry;
+            $di->offsetSet(Engine::class, V8::class);
+            $di->offsetSet('color', 'blue');
+
+            expect($di->make(Car::class, ['color' => '$color'])->color)->toBe('blue');
         });
 
         it('creates a concrete class with delegate lookup the parameter type hint', function() {

@@ -3,6 +3,7 @@
 ### 0.9.0
 
   - PSR-11 support.
+  - [BC-BREAK] Arguments are not revolved as parameter unless dollar sign is prefix.
 
 ### 0.8.0
 
