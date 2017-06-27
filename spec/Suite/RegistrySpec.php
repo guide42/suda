@@ -87,7 +87,15 @@ describe('Registry', function() {
             expect($di->offsetGet(Car::class))->toBeAnInstanceOf(Car::class);
         });
 
-        it('assigns classes as aliases', function() {
+        it('assigns parameters for key concrete class', function() {
+            $di = new Registry;
+            $di->offsetSet(Engine::class, V8::class);
+            $di->offsetSet(Car::class, ['color' => 'blue']);
+
+            expect($di->offsetGet(Car::class)->color)->toBe('blue');
+        });
+
+        it('assigns concrete classes as aliases', function() {
             $di = new Registry;
             $di->offsetSet(Engine::class, V8::class);
 

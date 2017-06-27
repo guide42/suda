@@ -30,8 +30,13 @@ class Registry implements \ArrayAccess
             $this->values[$key] = $value;
             $this->keys[$key] = count($this->keys);
         } else {
+            // $this[Car::class] = [V8::class];
+            if (is_array($value)) {
+                $value = function(self $self, callable $make) use($key, $value) {
+                    return $make($key, $value);
+                };
             // $this[Engine::class] = V8::class;
-            if (is_string($value) && class_exists($value, false)) {
+            } elseif (is_string($value) && class_exists($value, false)) {
                 $value = function(self $self, callable $make) use($value) {
                     return $make($value);
                 };
