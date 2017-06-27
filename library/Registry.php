@@ -164,6 +164,8 @@ class Registry implements \ArrayAccess
                 $context[$index] = $this->delegate[$param->getName()];
             } elseif ($param->isDefaultValueAvailable()) {
                 $context[$index] = $param->getDefaultValue();
+            } elseif ($param->isOptional() && !$param->isVariadic()) {
+                $context[$index] = null;
             } else {
                 throw new \LogicException(sprintf('Parameter [%s] not found for [%s]', $param->getName(),
                     key($this->loading)

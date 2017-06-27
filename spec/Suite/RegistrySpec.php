@@ -372,6 +372,14 @@ describe('Registry', function() {
             expect($di->make(W16::class))->toBeAnInstanceOf(W16::class);
         });
 
+        // require pdo-sqlite
+        xit('creates a concrete class with no default values but optional', function() {
+            $di = new Registry;
+
+            allow(PDO::class)->toBeOk();
+            expect($di->make(PDO::class, ['sqlite://:memory:']))->toBeAnInstanceOf(PDO::class);
+        });
+
         it('creates a concrete class with the parameter default value', function() {
             $di = new Registry;
             $di->offsetSet(Engine::class, V8::class);
