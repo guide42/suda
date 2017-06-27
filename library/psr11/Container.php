@@ -3,12 +3,20 @@
 namespace suda\psr11;
 
 use Psr\Container\ContainerInterface;
-use suda\Registry as SudaContainer;
+use suda\Registry as SudaRegistry;
 
-class Container extends SudaContainer implements ContainerInterface
+final class Container implements ContainerInterface
 {
-    function withPsrContainer(ContainerInterface $container) {
-        return $this->withDelegate(new class($container) extends SudaContainer {
+    /** @var SudaRegistry */
+    private $registry;
+
+    function __construct(SudaRegistry $registry) {
+        $this->registry = $registry;
+    }
+
+    function withDelegate(ContainerInterface $container) {
+        $new = clone $this;
+        $new->registry = $this->registry->withDelegate(new class($container) extends SudaRegistry {
             /** @var ContainerInterface */
             private $container;
 
@@ -30,11 +38,13 @@ class Container extends SudaContainer implements ContainerInterface
                 return parent::offsetExists($key);
             }
         });
+
+        return $new;
     }
 
     function get($id) {
         try {
-            $ret = $this[$id];
+            $ret = $this->registry[$id];
         } catch (\InvalidArgumentException $e) {
             throw new ContainerException($e->getMessage());
         } catch (\LogicException $e) {
@@ -50,6 +60,6 @@ class Container extends SudaContainer implements ContainerInterface
     }
 
     function has($id) {
-        return isset($this[$id]);
+        return isset($this->registry[$id]);
     }
 }

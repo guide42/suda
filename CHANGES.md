@@ -2,7 +2,8 @@
 
 ### 0.10.0
 
-  - Delegate in PSR-11 is done with `Container::withPsrContainer`.
+  - Delegate in PSR-11 is done with `Container::withDelegate`.
+  - [BC-BREAK] Change PSR-11 support to be a wrapper around `Registry` instead of extend it.
 
 ### 0.9.0
 
