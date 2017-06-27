@@ -4,8 +4,8 @@ php:
   - 7.1
 
 before_script:
-  - composer install --dev --no-interaction --prefer-dist
-  - composer require --dev --no-interaction satooshi/php-coveralls
+  - composer install --no-interaction --prefer-dist
+  - composer require --no-interaction satooshi/php-coveralls
   - mkdir -p build/logs/
 
 script:
