@@ -4,6 +4,19 @@ use suda\psr11\Container;
 use suda\psr11\ContainerException;
 use suda\psr11\NotFoundException;
 
+class FakeContainer implements \Psr\Container\ContainerInterface {
+    function get($id) {
+        if ($id === 'message') {
+            return 'All your base are belong to us';
+        }
+        return null;
+    }
+
+    function has($id) {
+        return $id === 'message';
+    }
+}
+
 describe('Container', function() {
     describe('__construct', function() {
         it('accepts values', function() {
@@ -21,6 +34,18 @@ describe('Container', function() {
             }]);
 
             expect((new Container([], $delegate))->make(ParentIterator::class))->toBeAnInstanceOf(ParentIterator::class);
+        });
+    });
+
+    describe('withPsrContainer', function() {
+        it('accepts a container as delegate', function() {
+            $di = new Container([Exception::class => ['$message']]);
+            $di = $di->withPsrContainer(new FakeContainer);
+
+            $service = $di[Exception::class];
+
+            expect($service)->toBeAnInstanceOf(Exception::class);
+            expect($service->getMessage())->toBe('All your base are belong to us');
         });
     });
 

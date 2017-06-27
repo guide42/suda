@@ -1,5 +1,9 @@
 ## CHANGES
 
+### 0.10.0
+
+  - Delegate in PSR-11 is done with `Container::withPsrContainer`.
+
 ### 0.9.0
 
   - PSR-11 support.
