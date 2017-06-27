@@ -5,10 +5,11 @@ php:
 
 before_script:
   - composer install --dev --no-interaction --prefer-dist
+  - composer require --dev --no-interaction satooshi/php-coveralls
   - mkdir -p build/logs/
 
 script:
   - php vendor/bin/kahlan --cc=true --coverage=4 --clover=build/logs/clover.xml
 
 after_success:
-  - php vendor/bin/coveralls.php -v
+  - php vendor/bin/coveralls -v

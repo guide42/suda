@@ -11,8 +11,7 @@
         "psr-4": {"suda\\": "library/"}
     },
     "require-dev": {
-        "kahlan/kahlan": "@stable",
-        "satooshi/php-coveralls": "@stable"
+        "kahlan/kahlan": "@stable"
     },
     "require": {
         "php": ">=7.0",
