@@ -5,6 +5,25 @@ use suda\psr11\ContainerException;
 use suda\psr11\NotFoundException;
 
 describe('Container', function() {
+    describe('__construct', function() {
+        it('accepts values', function() {
+            $di = new Container([
+                'param' => 'value',
+                stdClass::class => stdClass::class,
+            ]);
+
+            expect($di->get('param'))->toBe('value');
+            expect($di->get(stdClass::class))->toBeAnInstanceOf(stdClass::class);
+        });
+        it('accepts container as delegate', function() {
+            $delegate = new Container([RecursiveIterator::class => function() {
+                return new RecursiveArrayIterator(['/' => ['plants', 'rocks']]);
+            }]);
+
+            expect((new Container([], $delegate))->make(ParentIterator::class))->toBeAnInstanceOf(ParentIterator::class);
+        });
+    });
+
     describe('get', function() {
         it('returns param', function() {
             $di = new Container;
