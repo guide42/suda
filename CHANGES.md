@@ -1,5 +1,9 @@
 ## CHANGES
 
+### 0.9.0
+
+  - PSR-11 support.
+
 ### 0.8.0
 
   - Cyclic dependency detection.
