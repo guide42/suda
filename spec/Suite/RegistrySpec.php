@@ -182,7 +182,7 @@ describe('Registry', function() {
             expect(function() use($di) {
                 $di->offsetGet('not_found');
             })
-            ->toThrow(new RuntimeException);
+            ->toThrow(new RuntimeException('Entry [not_found] not found'));
         });
     });
 
@@ -283,6 +283,14 @@ describe('Registry', function() {
                 $di->make(Car::class);
             })
             ->toThrow(new InvalidArgumentException('Target [Engine] cannot be construct while [Car]'));
+        });
+
+        it('throws LogicException when a parameter is not found', function() {
+            expect(function() {
+                $di = new Registry;
+                $di->make(Car::class);
+            })
+            ->toThrow(new LogicException('Parameter [engine] not found'));
         });
     });
 });
