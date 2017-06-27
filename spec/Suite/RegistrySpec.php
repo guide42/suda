@@ -92,8 +92,8 @@ describe('Registry', function() {
 
         it('calls param callable with it\'s own instance as first argument', function() {
             $di = new Registry;
-            $di->offsetSet('test', function($instance) use($di) {
-                expect($instance)->toBe($di);
+            $di->offsetSet('test', function($c) use($di) {
+                expect($c)->toBe($di);
             });
             $di->offsetGet('test');
         });
