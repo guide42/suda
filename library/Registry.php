@@ -104,6 +104,10 @@ class Registry implements \ArrayAccess
             return new $class;
         }
 
+        if (isset($this->loading[$class])) {
+            throw new \RuntimeException("Cyclic dependency detected for [$class]");
+        }
+
         $this->loading[$class] = count($this->loading);
 
         $context = $this->buildContext($constructor->getParameters(), $arguments);

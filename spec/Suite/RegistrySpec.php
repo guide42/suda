@@ -10,7 +10,7 @@ class W16 implements Engine {
     public $left;
     public $right;
 
-    function __construct(V8 $left, V8 $right) {
+    function __construct(Engine $left, Engine $right) {
         $this->left = $left;
         $this->right = $right;
     }
@@ -245,7 +245,7 @@ describe('Registry', function() {
 
         it('creates a concrete class with delegate lookup the parameter type hint', function() {
             $di = new Registry;
-            $di->offsetSet(V8::class, V8::class);
+            $di->offsetSet(Engine::class, V8::class);
 
             expect($di->make(W16::class))->toBeAnInstanceOf(W16::class);
         });
@@ -283,6 +283,15 @@ describe('Registry', function() {
                 $di->make(Car::class);
             })
             ->toThrow(new InvalidArgumentException('Target [Engine] cannot be construct while [Car]'));
+        });
+
+        it('throws RuntimeException when a cyclic dependency is detected', function() {
+            expect(function() {
+                $di = new Registry;
+                $di->offsetSet(Engine::class, W16::class);
+                $di->make(W16::class);
+            })
+            ->toThrow(new RuntimeException('Cyclic dependency detected for [W16]'));
         });
 
         it('throws LogicException when a parameter is not found', function() {
