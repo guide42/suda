@@ -372,14 +372,6 @@ describe('Registry', function() {
             expect($di->make(W16::class))->toBeAnInstanceOf(W16::class);
         });
 
-        it('creates a concrete class with delegate lookup the parameter name', function() {
-            $di = new Registry;
-            $di->offsetSet('left', new V8);
-            $di->offsetSet('right', new V8);
-
-            expect($di->make(W16::class))->toBeAnInstanceOf(W16::class);
-        });
-
         // require pdo-sqlite
         xit('creates a concrete class with no default values but optional', function() {
             $di = new Registry;

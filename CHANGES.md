@@ -4,6 +4,7 @@
 
   - PSR-11 support.
   - [BC-BREAK] Arguments are not revolved as parameter unless dollar sign is prefix.
+  - [BC-BREAK] Removed resolve by parameter name.
 
 ### 0.8.0
 
