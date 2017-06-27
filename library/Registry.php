@@ -30,10 +30,7 @@ class Registry implements \ArrayAccess
             throw new \TypeError('Entry must be string');
         }
 
-        if (!interface_exists($key, false) && !class_exists($key, false)) {
-            $this->values[$key] = $value;
-            $this->keys[$key] = count($this->keys);
-        } else {
+        if (interface_exists($key, false) || class_exists($key, false)) {
             // $this[Car::class] = [V8::class];
             if (is_array($value)) {
                 $value = function(self $self, callable $make) use($key, $value) {
@@ -64,7 +61,12 @@ class Registry implements \ArrayAccess
 
             $this->factories[$key] = $value;
             $this->keys[$key] = count($this->keys);
+
+            return;
         }
+
+        $this->values[$key] = $value;
+        $this->keys[$key] = count($this->keys);
     }
 
     function offsetGet($key) {
