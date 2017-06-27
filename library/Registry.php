@@ -18,6 +18,13 @@ class Registry implements \ArrayAccess
         }
     }
 
+    function withDelegate(self $delegate) {
+        $new = clone $this;
+        $new->delegate = $delegate;
+
+        return $new;
+    }
+
     function offsetSet($key, $value) {
         if (!interface_exists($key, false) && !class_exists($key, false)) {
             $this->values[$key] = $value;

@@ -4,6 +4,7 @@
 
   - Cyclic dependency detection.
   - Stack factories.
+  - Delegate can be changed with `Registry::withDelegate`.
 
 ### 0.7.0
 
