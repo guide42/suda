@@ -1,160 +1,137 @@
-<?php
+<?php declare(strict_types=1);
 
-namespace Guide42\Suda;
+namespace suda;
 
-class Registry implements RegistryInterface
+class Registry implements \ArrayAccess
 {
-    public $settings = array();
-
-    private $services = array();
-    private $factories = array();
-    private $definitions = array();
-
-    /* This contains the instances of \ReflectionClass that will
-     * be used to create new instances of services */
-    private $reflcache = array();
-
-    /* Used to detect cyclic dependency, will contain the name of
-     * the class being created in the moment as key and a simple
-     * true as value */
+    private $keys = array();
+    private $values = array();
     private $loading = array();
-
-    /**
-     * @var \Guide42\Suda\RegistryInterface
-     */
+    private $factories = array();
     private $delegate;
 
-    public function __construct($delegate=null) {
-        if ($delegate === null) {
-            $delegate = $this;
-        }
+    function __construct(array $values = array(), self $delegate=null) {
+        $this->delegate = $delegate ?: $this;
 
-        $this->delegate = $delegate;
-    }
-
-    public function setDelegateLookupContainer(RegistryInterface $delegate) {
-        $this->delegate = $delegate;
-    }
-
-    public function register($service, $name='') {
-        $interfaces = class_implements($service);
-
-        if (empty($interfaces)) {
-            throw new Exception\RegistryException(
-                'Service must implement at least one interface',
-                Exception\RegistryException::MUST_IMPLEMENT_INTERFACE
-            );
-        }
-
-        foreach ($interfaces as $interface) {
-            $this->services[$interface][$name] = $service;
+        foreach ($values as $key => $value) {
+            $this->offsetSet($key, $value);
         }
     }
 
-    public function registerFactory($interfaces, \Closure $factory, $name='') {
-        $refl = new \ReflectionFunction($factory);
-        $reflParams = $refl->getParameters();
-
-        $params = array();
-        foreach ($reflParams as $pos => $relfParam) {
-            if ($relfParam->isDefaultValueAvailable()) {
-                $params[$pos] = $relfParam->getDefaultValue();
-            } elseif (($classHint = $relfParam->getClass()) !== null) {
-                $params[$pos] = $classHint->getName();
-            }
-        }
-
-        foreach ((array) $interfaces as $interface) {
-            $this->factories[$interfaces][$name] = array($factory, $params);
-        }
-    }
-
-    public function registerDefinition($class, $name='', array $args=array()) {
-        $interfaces = class_implements($class);
-
-        if (empty($interfaces)) {
-            throw new Exception\RegistryException(
-                'Factory must implement at least one interface',
-                Exception\RegistryException::MUST_IMPLEMENT_INTERFACE
-            );
-        }
-
-        foreach ($interfaces as $interface) {
-            $this->definitions[$interface][$name] = array($class, $args);
-        }
-    }
-
-    public function get($interface, $name='', array $context=array()) {
-        if (isset($this->services[$interface][$name])) {
-            return $this->services[$interface][$name];
-        }
-
-        if (isset($this->factories[$interface][$name])) {
-            list($factory, $arguments) = $this->factories[$interface][$name];
-
-            $parameters = $this->buildContext($arguments, $context);
-            $service = call_user_func_array($factory, $parameters);
-
-            return $this->services[$interface][$name] = $service;
-        }
-
-        if (isset($this->definitions[$interface][$name])) {
-            list($class, $arguments) = $this->definitions[$interface][$name];
-
-            if (isset($this->loading[$class])) {
-                throw new Exception\RegistryException(
-                    "Cyclic dependency detected for $class",
-                    Exception\RegistryException::CYCLIC_DEPENDENCY_DETECTED
-                );
+    function offsetSet($key, $value) {
+        if (!interface_exists($key, false) && !class_exists($key, false)) {
+            $this->values[$key] = $value;
+            $this->keys[$key] = count($this->keys);
+        } else {
+            if (is_string($value) && class_exists($value, false)) {
+                $value = function(self $self, callable $make) use($value) {
+                    return $make($value);
+                };
             }
 
-            $this->loading[$class] = true;
+            if (!method_exists($value, '__invoke')) {
+                throw new \InvalidArgumentException('Service factory must be callable');
+            }
 
-            if (isset($this->reflcache[$class])) {
-                $refl = $this->reflcache[$class];
+            /*if (isset($this->factories[$key])) {
+                $prev = $this->factories[$key];
+                $value = function(self $self, callable $make) use($value, $prev) {
+                    return $value($self, function(string $dep=null, array $args=[]) use($prev, $self, $make) {
+                        if (is_null($dep)) {
+                            return $prev($self, $make);
+                        }
+                        return $make($dep, $args);
+                    });
+                };
+            }*/
+
+            $this->factories[$key] = $value;
+            $this->keys[$key] = count($this->keys);
+        }
+    }
+
+    function offsetGet($key) {
+        if (isset($this->values[$key])) {
+            if (method_exists($this->values[$key], '__invoke')) {
+                return $this->values[$key]($this);
+            }
+
+            return $this->values[$key];
+        }
+
+        if (isset($this->factories[$key])) {
+            $service = $this->factories[$key]($this, function(string $dep=null, array $args=[]) use($key) {
+                if (is_null($dep)) {
+                    return $this->delegate[$key];
+                }
+                return $this->delegate->make($dep, $args);
+            });
+
+            if (!$service instanceof $key) {
+                throw new \LogicException("Service factory must return an instance of [$key]");
+            }
+
+            return $this->values[$key] = $service;
+        }
+
+        throw new \RuntimeException("Entry [$key] not found");
+    }
+
+    function offsetExists($key) {
+        return isset($this->keys[$key]);
+    }
+
+    function offsetUnset($key) {
+        unset($this->keys[$key], $this->values[$key], $this->factories[$key]);
+    }
+
+    function make(string $class, array $arguments=[]) {
+        $reflector = new \ReflectionClass($class);
+
+        if (!$reflector->isInstantiable()) {
+            if (empty($this->loading)) {
+                throw new \InvalidArgumentException("Target [$class] cannot be construct");
+            }
+
+            throw new \InvalidArgumentException(sprintf("Target [$class] cannot be construct while [%s]",
+                implode(', ', array_keys($this->loading))
+            ));
+        }
+
+        $constructor = $reflector->getConstructor();
+
+        if (is_null($constructor)) {
+            return new $class;
+        }
+
+        $this->loading[$class] = count($this->loading);
+
+        $context = $this->buildContext($constructor->getParameters(), $arguments);
+        $service = $reflector->newInstanceArgs($context);
+
+        array_pop($this->loading);
+
+        return $service;
+    }
+
+    private function buildContext(array $parameters, array $arguments) {
+        $parameters = array_filter($parameters, function(\ReflectionParameter $param) { return true; });
+        $context = [];
+
+        /** @var \ReflectionParameter $param */
+        foreach ($parameters as $index => $param) {
+            if (isset($arguments[$param->getPosition()])) {
+                $context[$index] = $arguments[$param->getPosition()];
+            } elseif (isset($arguments[$param->getName()])) {
+                $context[$index] = $arguments[$param->getName()];
+            } elseif ($param->hasType() && !$param->getType()->isBuiltin() && isset($this->delegate[strval($param->getType())])) {
+                $context[$index] = $this->delegate[strval($param->getType())];
+            } elseif (isset($this->delegate[$param->getName()])) {
+                $context[$index] = $this->delegate[$param->getName()];
+            } elseif ($param->isDefaultValueAvailable()) {
+                $context[$index] = $param->getDefaultValue();
             } else {
-                $refl = $this->reflcache[$class]
-                      = new \ReflectionClass($class);
-            }
-
-            $parameters = $this->buildContext($arguments, $context);
-            $service = $refl->newInstanceArgs($parameters);
-
-            unset($this->loading[$class]);
-
-            return $this->services[$interface][$name] = $service;
-        }
-
-        throw new Exception\NotFoundException(
-            "Service \"$name\" for $interface not found"
-        );
-    }
-
-    public function getAll($interface) {
-        if (isset($this->services[$interface])) {
-            return $this->services[$interface];
-        }
-
-        throw new Exception\NotFoundException(
-            "Services for $interface not found"
-        );
-    }
-
-    public function has($interface, $name='') {
-        return isset($this->services[$interface][$name]) ||
-               isset($this->definitions[$interface][$name]);
-    }
-
-    private function buildContext(array $arguments, array $parameters) {
-        $context = array_replace($arguments, $parameters);
-
-        foreach ($context as $index => $value) {
-            if (is_string($value) && $this->has($value)) {
-                $context[$index] = $this->delegate->get($value);
-            } elseif (is_array($value) && count($value) === 2 &&
-                $this->has($value[0], $value[1])
-            ) {
-                $context[$index] = $this->delegate->get($value[0], $value[1]);
+                throw new \LogicException(sprintf('Parameter [%s] not found', $param->getName()));
             }
         }
 

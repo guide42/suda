@@ -5,28 +5,19 @@
     "keywords": ["registry", "container", "di", "dependency injection"],
     "license": "ISC",
     "authors": [
-        {
-            "name": "Juan M Martínez",
-            "email": "suda@jm.guide42.com",
-            "homepage": "http://jm.guide42.com",
-            "role": "Developer"
-        }
+        {"name": "Juan M", "email": "jm@guide42.com"}
     ],
-    "require": {
-        "php": ">=5.3",
-        "container-interop/container-interop": "~1.0"
+    "autoload": {
+        "psr-4": {"suda\\": "library/"}
     },
     "require-dev": {
-        "satooshi/php-coveralls": "@stable"
+        "kahlan/kahlan": "*"
     },
-    "autoload": {
-        "psr-4": {
-            "Guide42\\Suda\\": "library/"
-        }
+    "require": {
+        "php": ">=7.0",
+        "psr/container": "*"
     },
-    "autoload-dev": {
-        "psr-4": {
-            "Guide42\\SudaTest\\": "tests/"
-        }
+    "provide": {
+        "psr/container-implementation": "1.0"
     }
 }
