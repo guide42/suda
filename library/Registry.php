@@ -165,7 +165,9 @@ class Registry implements \ArrayAccess
             } elseif ($param->isDefaultValueAvailable()) {
                 $context[$index] = $param->getDefaultValue();
             } else {
-                throw new \LogicException(sprintf('Parameter [%s] not found', $param->getName()));
+                throw new \LogicException(sprintf('Parameter [%s] not found for [%s]', $param->getName(),
+                    key($this->loading)
+                ));
             }
         }
 

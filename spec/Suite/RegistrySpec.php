@@ -413,7 +413,7 @@ describe('Registry', function() {
                 $di = new Registry;
                 $di->make(Car::class);
             })
-            ->toThrow(new LogicException('Parameter [engine] not found'));
+            ->toThrow(new LogicException('Parameter [engine] not found for [Car]'));
         });
     });
 });
