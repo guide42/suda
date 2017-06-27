@@ -76,7 +76,7 @@ describe('Registry', function() {
             expect(function() use($di) {
                 $di->offsetSet(V8::class, 123);
             })
-            ->toThrow(new InvalidArgumentException);
+            ->toThrow(new InvalidArgumentException('Service factory must be callable'));
         });
     });
 
@@ -173,7 +173,7 @@ describe('Registry', function() {
             expect(function() use($di) {
                 $di->offsetGet(Engine::class);
             })
-            ->toThrow(new LogicException);
+            ->toThrow(new LogicException('Service factory must return an instance of [Engine]'));
         });
 
         it('throws RuntimeException when entry not found', function() {
