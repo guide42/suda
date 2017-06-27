@@ -95,6 +95,15 @@ describe('Registry', function() {
             expect($di->offsetGet(Car::class)->color)->toBe('blue');
         });
 
+        it('assigns parameters for key concrete class that are resolver from delegate', function() {
+            $di = new Registry;
+            $di->offsetSet('color', 'blue');
+            $di->offsetSet(Engine::class, V8::class);
+            $di->offsetSet(Car::class, ['color' => '$color']);
+
+            expect($di->offsetGet(Car::class)->color)->toBe('blue');
+        });
+
         it('assigns concrete classes as aliases', function() {
             $di = new Registry;
             $di->offsetSet(Engine::class, V8::class);
