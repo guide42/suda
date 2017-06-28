@@ -5,7 +5,25 @@ Suda is a lightweight container for your services.
 
 This library is compatible with [PSR-11](https://github.com/php-fig/container).
 
+API
+---
 
+```php
+$di = new Registry;                                    // creates empty registry
+$di = new Registry(array $values);                     // ... with assoc-array containing values or factories
+$di = new Registry(array $values, Registry $delegate); // ... with registry to delegate dependencies
+
+$di = $di->withDelegate(Registry $delegate);           // returns a copy of itself with given delegate
+
+$di[string $classOrInterface] = callable $factory;     // stores a factory for abstract
+$di[string $classOrInterface] = string $concreteClass; // ... that will make $concreteClass for $classOrInterface
+$di[string $classOrInterface] = array $arguments;      // ... that will make $classOrInterface with given $arguments
+
+$di[string $key] = mixed $value;                       // stores a parameter
+
+$di(callable $fn);                                     // call a function resolving it's parameters
+$di(callable $fn, array $arguments);                   // ... with given arguments
+```
 
 Badges
 ------
