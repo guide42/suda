@@ -1,5 +1,9 @@
 ## CHANGES
 
+### 0.11.0
+
+  - [BC-BREAK] Mark `Registry::make` as private.
+
 ### 0.10.0
 
   - Delegate in PSR-11 is done with `Container::withDelegate`.

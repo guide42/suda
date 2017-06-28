@@ -115,7 +115,7 @@ class Registry implements \ArrayAccess
         }
     }
 
-    function make(string $class, array $arguments=[]) {
+    private function make(string $class, array $arguments=[]) {
         $reflector = new \ReflectionClass($class);
 
         if (!$reflector->isInstantiable()) {
