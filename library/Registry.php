@@ -75,10 +75,6 @@ class Registry implements \ArrayAccess
         }
 
         if (isset($this->values[$key])) {
-            if (!isset($this->factories[$key]) && method_exists($this->values[$key], '__invoke')) {
-                return $this->values[$key]($this);
-            }
-
             return $this->values[$key];
         }
 

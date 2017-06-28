@@ -3,6 +3,7 @@
 ### 0.11.0
 
   - [BC-BREAK] Mark `Registry::make` as private.
+  = [BC-BREAK] Doesn't call automagically params that are callables.
 
 ### 0.10.0
 

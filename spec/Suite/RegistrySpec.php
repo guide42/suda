@@ -169,36 +169,6 @@ describe('Registry', function() {
     });
 
     describe('offsetGet', function() {
-        it('calls param callable and return it\'t value', function() {
-            $di = new Registry;
-            $di->offsetSet('rand', function() {
-                return 14;
-            });
-
-            expect($di->offsetGet('rand'))->toBe(14);
-        });
-
-        it('calls param callable with it\'s own instance as first argument', function() {
-            $di = new Registry;
-            $di->offsetSet('test', function($c) use($di) {
-                expect($c)->toBe($di);
-            });
-            $di->offsetGet('test');
-        });
-
-        it('calls param callable everytime the parameter is requested', function() {
-            $count = 0;
-
-            $di = new Registry;
-            $di->offsetSet('test', function() use(&$count) {
-                $count++;
-            });
-            $di->offsetGet('test');
-            $di->offsetGet('test');
-
-            expect($count)->toBe(2);
-        });
-
         it('calls factory only the first time', function() {
             $count = 0;
             $service = null;
