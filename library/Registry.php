@@ -155,26 +155,15 @@ class Registry implements \ArrayAccess
         });
 
         $context = [];
-        $resolve = function($value) {
-            if (is_string($value)) {
-                if (strncmp($value, '$', 1) === 0) {
-                    return $this->delegate[substr($value, 1)];
-                }
-                if (interface_exists($value, false) || class_exists($value, false)) {
-                    return $this->delegate[$value];
-                }
-            }
-            return $value;
-        };
 
         /** @var \ReflectionParameter $param */
         foreach ($parameters as $index => $param) {
             $name = $param->getName();
 
             if (isset($arguments[$param->getPosition()])) {
-                $context[$index] = $resolve($arguments[$param->getPosition()]);
+                $context[$index] = $this->resolve($arguments[$param->getPosition()]);
             } elseif (isset($arguments[$name])) {
-                $context[$index] = $resolve($arguments[$name]);
+                $context[$index] = $this->resolve($arguments[$name]);
             } elseif ($param->hasType() && !$param->getType()->isBuiltin() && isset($this->delegate[strval($param->getType())])) {
                 $context[$index] = $this->delegate[strval($param->getType())];
             } elseif ($param->isDefaultValueAvailable()) {
@@ -189,5 +178,17 @@ class Registry implements \ArrayAccess
         }
 
         return $context;
+    }
+
+    private function resolve($value) {
+        if (is_string($value)) {
+            if (strncmp($value, '$', 1) === 0) {
+                return $this->delegate[substr($value, 1)];
+            }
+            if (interface_exists($value, false) || class_exists($value, false)) {
+                return $this->delegate[$value];
+            }
+        }
+        return $value;
     }
 }
