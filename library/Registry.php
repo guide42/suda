@@ -2,6 +2,7 @@
 
 namespace suda;
 
+/** Registry of values and dependency injector. */
 class Registry implements \ArrayAccess
 {
     private $keys = array();
@@ -18,6 +19,7 @@ class Registry implements \ArrayAccess
         }
     }
 
+    /** Copy of itself with new delegate registry. */
     function withDelegate(self $delegate): self {
         $new = clone $this;
         $new->delegate = $delegate;
@@ -25,6 +27,7 @@ class Registry implements \ArrayAccess
         return $new;
     }
 
+    /** Assign values and, if key is class or interface, factories. */
     function offsetSet($key, $value) {
         if (!is_string($key)) {
             throw new \TypeError('Entry must be string');
@@ -69,6 +72,7 @@ class Registry implements \ArrayAccess
         $this->keys[$key] = count($this->keys);
     }
 
+    /** Retrieve values or, create and store a service. */
     function offsetGet($key) {
         if (!is_string($key)) {
             throw new \TypeError('Entry must be string');
@@ -100,6 +104,7 @@ class Registry implements \ArrayAccess
         throw new \RuntimeException("Entry [$key] not found");
     }
 
+    /** Returns true if key exists in registry, false otherwise. */
     function offsetExists($key) {
         if (!is_string($key)) {
             return false;
@@ -107,12 +112,14 @@ class Registry implements \ArrayAccess
         return isset($this->keys[$key]);
     }
 
+    /** Remove a key from the registry. */
     function offsetUnset($key) {
         if (is_string($key)) {
             unset($this->keys[$key], $this->values[$key], $this->factories[$key]);
         }
     }
 
+    /** Calls given function with arguments, resolving dependencies. */
     function __invoke($fn, array $args=[]) {
         if (is_string($fn)) {
             if (strpos($fn, '::') !== false) {
