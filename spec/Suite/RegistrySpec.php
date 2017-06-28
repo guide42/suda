@@ -187,10 +187,11 @@ describe('Registry', function() {
             expect($count)->toBe(1);
         });
 
-        it('calls factory with it\'s own instance and a make function', function() {
-            $di = new Registry;
-            $di->offsetSet(Engine::class, function($c, $make) use($di) {
-                expect($c)->toBe($di);
+        it('calls factory with delegate instance and a make function', function() {
+            $delegate = new Registry;
+            $di = new Registry([], $delegate);
+            $di->offsetSet(Engine::class, function($c, $make) use($delegate) {
+                expect($c)->toBe($delegate);
                 expect($make)->toBeAnInstanceOf(Closure::class);
 
                 return new V8;

@@ -79,14 +79,16 @@ class Registry implements \ArrayAccess
         }
 
         if (isset($this->factories[$key])) {
-            $service = $this($this->factories[$key], [$this, function(string $dep=null, array $args=[]) use($key) {
-                // $dep should be a concrete class or null
-                // $key could be abstract or interface
-                if (is_null($dep) && empty($args)) {
-                    return $this->delegate[$key];
+            $service = $this($this->factories[$key], [$this->delegate,
+                function(string $dep=null, array $args=[]) use($key) {
+                    // $dep should be a concrete class or null
+                    // $key could be abstract or interface
+                    if (is_null($dep) && empty($args)) {
+                        return $this->delegate[$key];
+                    }
+                    return $this->make($dep, $args);
                 }
-                return $this->make($dep, $args);
-            }]);
+            ]);
 
             if (!$service instanceof $key) {
                 throw new \LogicException("Service factory must return an instance of [$key]");

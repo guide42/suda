@@ -1,5 +1,9 @@
 ## CHANGES
 
+### 0.12.0
+
+  - [BC-BREAK] Factories are given an instance of delegate instead it's own.
+
 ### 0.11.0
 
   - [BC-BREAK] Mark `Registry::make` as private.
