@@ -4,7 +4,11 @@ use suda\Registry;
 
 interface Engine {}
 
-class V8 implements Engine {}
+class V8 implements Engine {
+    function __invoke() {
+        return 8;
+    }
+}
 
 class W16 implements Engine {
     public $left;
