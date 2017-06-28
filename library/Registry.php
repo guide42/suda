@@ -79,14 +79,14 @@ class Registry implements \ArrayAccess
         }
 
         if (isset($this->factories[$key])) {
-            $service = $this->factories[$key]($this, function(string $dep=null, array $args=[]) use($key) {
+            $service = $this($this->factories[$key], [$this, function(string $dep=null, array $args=[]) use($key) {
                 // $dep should be a concrete class or null
                 // $key could be abstract or interface
                 if (is_null($dep) && empty($args)) {
                     return $this->delegate[$key];
                 }
                 return $this->make($dep, $args);
-            });
+            }]);
 
             if (!$service instanceof $key) {
                 throw new \LogicException("Service factory must return an instance of [$key]");
@@ -109,6 +109,32 @@ class Registry implements \ArrayAccess
         if (is_string($key)) {
             unset($this->keys[$key], $this->values[$key], $this->factories[$key]);
         }
+    }
+
+    function __invoke($fn, array $args=[]) {
+        if (is_string($fn)) {
+            if (strpos($fn, '::') !== false) {
+                list($class, $method) = explode('::', $fn, 2);
+                $instance = $this[$class];
+                $reflector = new \ReflectionMethod($instance, $method);
+            } else {
+                $instance = $this[$fn];
+                $reflector = new \ReflectionMethod($instance, '__invoke');
+            }
+        } elseif (method_exists($fn, '__invoke')) {
+            $instance = $fn;
+            $reflector = new \ReflectionMethod($instance, '__invoke');
+        } elseif (is_array($fn) && isset($fn[0], $fn[1]) && count($fn) === 2) {
+            $instance = is_string($fn[0]) ? $this[$fn[0]] : $fn[0];
+            $reflector = new \ReflectionMethod($instance, $fn[1]);
+        } else {
+            throw new \InvalidArgumentException('Target must be a callable');
+        }
+
+        $context = $this->buildContext($reflector->getParameters(), $args);
+        $return = $reflector->invokeArgs($instance, $context);
+
+        return $return;
     }
 
     private function make(string $class, array $args=[]) {
@@ -167,7 +193,10 @@ class Registry implements \ArrayAccess
             } elseif ($param->isOptional() && !$param->isVariadic()) {
                 $context[$index] = null;
             } else {
-                throw new \LogicException(sprintf('Parameter [%s] not found for [%s]', $name,
+                if (empty($this->loading)) {
+                    throw new \LogicException("Parameter [$name] not found");
+                }
+                throw new \LogicException(sprintf("Parameter [$name] not found for [%s]",
                     key($this->loading)
                 ));
             }

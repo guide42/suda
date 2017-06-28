@@ -3,7 +3,9 @@
 ### 0.11.0
 
   - [BC-BREAK] Mark `Registry::make` as private.
-  = [BC-BREAK] Doesn't call automagically params that are callables.
+  - [BC-BREAK] Doesn't call automagically params that are callables.
+  - Factories parameters are resolved and injected.
+  - Call functions and inject parameters with `Registry::__invoke`.
 
 ### 0.10.0
 

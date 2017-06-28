@@ -222,6 +222,16 @@ describe('Registry', function() {
             expect($di->offsetGet(Engine::class))->toBeAnInstanceOf(V8::class);
         });
 
+        it('calls factory and resolve parameters', function() {
+            $di = new Registry;
+            $di->offsetSet(V8::class, V8::class);
+            $di->offsetSet(Engine::class, function($c, $make, V8 $v8) {
+                return $v8;
+            });
+
+            expect($di->offsetGet(Engine::class))->toBeAnInstanceOf(V8::class);
+        });
+
         it('throws LogicException when factory does not return an instance of the abstract', function() {
             $di = new Registry;
             $di->offsetSet(Engine::class, function() {
@@ -304,6 +314,93 @@ describe('Registry', function() {
                 $di->offsetGet($key);
             })
             ->toThrow(new TypeError('Entry must be string'));
+        });
+    });
+
+    describe('__invoke', function() {
+        it('calls callable when object that has __invoke method is given', function() {
+            expect((new Registry)->__invoke(new V8))->toBe(8);
+        });
+
+        it('calls callable when class that is in container and has __invoke method is given', function() {
+            $di = new Registry;
+            $di->offsetSet(Engine::class, V8::class);
+
+            expect($di->__invoke(Engine::class))->toBe(8);
+        });
+
+        it('calls callable when class that is in container and method split by :: is given', function() {
+            $di = new Registry;
+            $di->offsetSet(Engine::class, V8::class);
+
+            expect($di->__invoke(Engine::class . '::__invoke'))->toBe(8);
+        });
+
+        it('calls callable when array of object and method is given', function() {
+            expect((new Registry)->__invoke([new V8, '__invoke']))->toBe(8);
+        });
+
+        it('calls callable when array of class that is in container and method is given', function() {
+            $di = new Registry;
+            $di->offsetSet(Engine::class, V8::class);
+
+            expect($di->__invoke([Engine::class, '__invoke']))->toBe(8);
+        });
+
+        it('calls callable when string of closure that is in the container is given', function() {
+            $di = new Registry;
+            $di['my_func'] = function($val) {
+                return $val;
+            };
+
+            expect($di->__invoke('my_func', [42]))->toBe(42);
+        });
+
+        it('calls callable resolving parameters by type hint', function() {
+            $di = new Registry;
+            $di->offsetSet(V8::class, V8::class);
+
+            $v8 = $di->__invoke(function(V8 $v8) {
+                return $v8;
+            });
+
+            expect($v8)->toBeAnInstanceOf(V8::class);
+        });
+
+        it('calls callable resolving arguments by type hint', function() {
+            $di = new Registry;
+            $di->offsetSet(V8::class, V8::class);
+
+            $fn = function($v8) {
+                return $v8;
+            };
+
+            expect($di->__invoke($fn, [V8::class]))->toBeAnInstanceOf(V8::class);
+        });
+
+        it('calls callable resolving arguments prefixed with dollar sign', function() {
+            $di = new Registry;
+            $di->offsetSet('color', 'blue');
+
+            $fn = function($c) {
+                return $c;
+            };
+
+            expect($di->__invoke($fn, ['$color']))->toBe('blue');
+        });
+
+        it('throws InvalidArgumentException when target is not callable', function() {
+            expect(function() {
+                (new Registry)->__invoke(new stdClass);
+            })
+            ->toThrow(new InvalidArgumentException('Target must be a callable'));
+        });
+
+        it('throws LogicException when parameter not found', function() {
+            expect(function() {
+                (new Registry)->__invoke(function(V8 $v8) {});
+            })
+            ->toThrow(new LogicException('Parameter [v8] not found'));
         });
     });
 
