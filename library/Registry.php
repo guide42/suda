@@ -18,7 +18,7 @@ class Registry implements \ArrayAccess
         }
     }
 
-    function withDelegate(self $delegate) {
+    function withDelegate(self $delegate): self {
         $new = clone $this;
         $new->delegate = $delegate;
 
@@ -149,7 +149,7 @@ class Registry implements \ArrayAccess
     }
 
     /** @param array[\ReflectionParameter] $params */
-    private function buildContext(array $params, array $args) {
+    private function buildContext(array $params, array $args): array {
         $params = array_filter($params, function(\ReflectionParameter $param) {
             return true;
         });

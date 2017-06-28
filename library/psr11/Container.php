@@ -14,7 +14,7 @@ final class Container implements ContainerInterface
         $this->registry = $registry;
     }
 
-    function withDelegate(ContainerInterface $container) {
+    function withDelegate(ContainerInterface $container): self {
         $new = clone $this;
         $new->registry = $this->registry->withDelegate(new class($container) extends SudaRegistry {
             /** @var ContainerInterface */
