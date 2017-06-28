@@ -115,7 +115,7 @@ class Registry implements \ArrayAccess
         }
     }
 
-    private function make(string $class, array $arguments=[]) {
+    private function make(string $class, array $args=[]) {
         $reflector = new \ReflectionClass($class);
 
         if (!$reflector->isInstantiable()) {
@@ -140,7 +140,7 @@ class Registry implements \ArrayAccess
 
         $this->loading[$class] = count($this->loading);
 
-        $context = $this->buildContext($constructor->getParameters(), $arguments);
+        $context = $this->buildContext($constructor->getParameters(), $args);
         $service = $reflector->newInstanceArgs($context);
 
         array_pop($this->loading);
@@ -148,22 +148,22 @@ class Registry implements \ArrayAccess
         return $service;
     }
 
-    /** @param array[\ReflectionParameter] $parameters */
-    private function buildContext(array $parameters, array $arguments) {
-        $parameters = array_filter($parameters, function(\ReflectionParameter $param) {
+    /** @param array[\ReflectionParameter] $params */
+    private function buildContext(array $params, array $args) {
+        $params = array_filter($params, function(\ReflectionParameter $param) {
             return true;
         });
 
         $context = [];
 
         /** @var \ReflectionParameter $param */
-        foreach ($parameters as $index => $param) {
+        foreach ($params as $index => $param) {
             $name = $param->getName();
 
-            if (isset($arguments[$param->getPosition()])) {
-                $context[$index] = $this->resolve($arguments[$param->getPosition()]);
-            } elseif (isset($arguments[$name])) {
-                $context[$index] = $this->resolve($arguments[$name]);
+            if (isset($args[$param->getPosition()])) {
+                $context[$index] = $this->resolve($args[$param->getPosition()]);
+            } elseif (isset($args[$name])) {
+                $context[$index] = $this->resolve($args[$name]);
             } elseif ($param->hasType() && !$param->getType()->isBuiltin() && isset($this->delegate[strval($param->getType())])) {
                 $context[$index] = $this->delegate[strval($param->getType())];
             } elseif ($param->isDefaultValueAvailable()) {
