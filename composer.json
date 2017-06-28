@@ -1,7 +1,7 @@
 {
     "name": "guide42/suda",
     "type": "library",
-    "description": "PHP Registry",
+    "description": "Registry of values and dependency injector",
     "keywords": ["registry", "container", "di", "dependency injection"],
     "license": "ISC",
     "authors": [
