@@ -198,7 +198,7 @@ class Registry implements \ArrayAccess
             } elseif ($param->hasType() && !$param->getType()->isBuiltin() && isset($self[strval($param->getType())])) {
                 $context[$index] = $self[strval($param->getType())];
             } elseif ($param->isDefaultValueAvailable()) {
-                $context[$index] = $param->getDefaultValue();
+                $context[$index] = $this->resolve($self, $param->getDefaultValue());
             } elseif ($param->isOptional() && !$param->isVariadic()) {
                 $context[$index] = null;
             } else {

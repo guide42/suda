@@ -5,8 +5,8 @@ use suda\Registry;
 interface Engine {}
 
 class V8 implements Engine {
-    function __invoke() {
-        return 8;
+    function __invoke(string $prefix = '$prefix') {
+        return "${prefix}World";
     }
 }
 
@@ -318,32 +318,35 @@ describe('Registry', function() {
 
     describe('__invoke', function() {
         it('calls callable when object that has __invoke method is given', function() {
-            expect((new Registry)->__invoke(new V8))->toBe(8);
+            expect((new Registry)->__invoke(new V8, ['prefix' => '']))->toBe('World');
         });
 
         it('calls callable when class that is in container and has __invoke method is given', function() {
             $di = new Registry;
+            $di->offsetSet('prefix', 'Hello ');
             $di->offsetSet(Engine::class, V8::class);
 
-            expect($di->__invoke(Engine::class))->toBe(8);
+            expect($di->__invoke(Engine::class))->toBe('Hello World');
         });
 
         it('calls callable when class that is in container and method split by :: is given', function() {
             $di = new Registry;
+            $di->offsetSet('prefix', 'Hello ');
             $di->offsetSet(Engine::class, V8::class);
 
-            expect($di->__invoke(Engine::class . '::__invoke'))->toBe(8);
+            expect($di->__invoke(Engine::class . '::__invoke'))->toBe('Hello World');
         });
 
         it('calls callable when array of object and method is given', function() {
-            expect((new Registry)->__invoke([new V8, '__invoke']))->toBe(8);
+            expect((new Registry)->__invoke([new V8, '__invoke'], ['prefix' => '']))->toBe('World');
         });
 
         it('calls callable when array of class that is in container and method is given', function() {
             $di = new Registry;
+            $di->offsetSet('prefix', 'Hello ');
             $di->offsetSet(Engine::class, V8::class);
 
-            expect($di->__invoke([Engine::class, '__invoke']))->toBe(8);
+            expect($di->__invoke([Engine::class, '__invoke']))->toBe('Hello World');
         });
 
         it('calls callable when string of closure that is in the container is given', function() {
