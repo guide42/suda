@@ -388,6 +388,20 @@ describe('Registry', function() {
             expect($di->__invoke($fn, ['$color']))->toBe('blue');
         });
 
+        it('calls callable resolving arguments not from delegate', function() {
+            $delegate = new Registry;
+            $delegate->offsetSet('color', 'green');
+
+            $di = new Registry([], $delegate);
+            $di->offsetSet('color', 'blue');
+
+            $fn = function($c) {
+                return $c;
+            };
+
+            expect($di->__invoke($fn, ['$color']))->toBe('blue');
+        });
+
         it('throws InvalidArgumentException when target is not callable', function() {
             expect(function() {
                 (new Registry)->__invoke(new stdClass);

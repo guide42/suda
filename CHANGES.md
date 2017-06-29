@@ -4,6 +4,7 @@
 
   - [BC-BREAK] Factories are given an instance of delegate instead it's own.
   - [BC-BREAK] Factory call to make without parameters gets service from it's own instead of delegate.
+  - [BC-BREAK] Call a function will resolve parameters from it's own instead of delegate.
 
 ### 0.11.0
 

@@ -140,7 +140,7 @@ class Registry implements \ArrayAccess
             throw new \InvalidArgumentException('Target must be a callable');
         }
 
-        $context = $this->buildContext($reflector->getParameters(), $args);
+        $context = $this->buildContext($this, $reflector->getParameters(), $args);
         $return = $reflector->invokeArgs($instance, $context);
 
         return $return;
@@ -171,7 +171,7 @@ class Registry implements \ArrayAccess
 
         $this->loading[$class] = count($this->loading);
 
-        $context = $this->buildContext($constructor->getParameters(), $args);
+        $context = $this->buildContext($this->delegate, $constructor->getParameters(), $args);
         $service = $reflector->newInstanceArgs($context);
 
         array_pop($this->loading);
@@ -180,7 +180,7 @@ class Registry implements \ArrayAccess
     }
 
     /** @param array[\ReflectionParameter] $params */
-    private function buildContext(array $params, array $args): array {
+    private function buildContext(self $self, array $params, array $args): array {
         $params = array_filter($params, function(\ReflectionParameter $param) {
             return true;
         });
@@ -192,11 +192,11 @@ class Registry implements \ArrayAccess
             $name = $param->getName();
 
             if (isset($args[$param->getPosition()])) {
-                $context[$index] = $this->resolve($args[$param->getPosition()]);
+                $context[$index] = $this->resolve($self, $args[$param->getPosition()]);
             } elseif (isset($args[$name])) {
-                $context[$index] = $this->resolve($args[$name]);
-            } elseif ($param->hasType() && !$param->getType()->isBuiltin() && isset($this->delegate[strval($param->getType())])) {
-                $context[$index] = $this->delegate[strval($param->getType())];
+                $context[$index] = $this->resolve($self, $args[$name]);
+            } elseif ($param->hasType() && !$param->getType()->isBuiltin() && isset($self[strval($param->getType())])) {
+                $context[$index] = $self[strval($param->getType())];
             } elseif ($param->isDefaultValueAvailable()) {
                 $context[$index] = $param->getDefaultValue();
             } elseif ($param->isOptional() && !$param->isVariadic()) {
@@ -214,13 +214,13 @@ class Registry implements \ArrayAccess
         return $context;
     }
 
-    private function resolve($value) {
+    private function resolve(self $self, $value) {
         if (is_string($value)) {
             if (strncmp($value, '$', 1) === 0) {
-                return $this->delegate[substr($value, 1)];
+                return $self[substr($value, 1)];
             }
             if (interface_exists($value, false) || class_exists($value, false)) {
-                return $this->delegate[$value];
+                return $self[$value];
             }
         }
         return $value;
