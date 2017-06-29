@@ -368,6 +368,21 @@ describe('Registry', function() {
             expect($v8)->toBeAnInstanceOf(V8::class);
         });
 
+        it('calls callable resolving parameters from it\'s own', function() {
+            $v80 = new V8;
+            $v81 = new V8;
+
+            $delegate = new Registry;
+            $delegate[Car::class] = [$v80];
+
+            $di = new Registry([], $delegate);
+            $di[Car::class] = [$v81];
+
+            $di(function(Car $car) use($v81) {
+                expect($car->engine)->toBe($v81);
+            });
+        });
+
         it('calls callable resolving arguments by type hint', function() {
             $di = new Registry;
             $di->offsetSet(V8::class, V8::class);
