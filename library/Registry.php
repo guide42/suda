@@ -88,7 +88,7 @@ class Registry implements \ArrayAccess
                     // $dep should be a concrete class or null
                     // $key could be abstract or interface
                     if (is_null($dep) && empty($args)) {
-                        return $this->delegate[$key];
+                        return $this[$key];
                     }
                     return $this->make($dep, $args);
                 }
