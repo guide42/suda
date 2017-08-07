@@ -5,7 +5,7 @@ use suda\Registry;
 interface Engine {}
 
 class V8 implements Engine {
-    function __invoke(string $prefix = '$prefix') {
+    function __invoke(string $prefix='$prefix') {
         return "${prefix}World";
     }
 }
