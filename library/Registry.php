@@ -90,6 +90,10 @@ class Registry implements \ArrayAccess
                     if (is_null($dep) && empty($args)) {
                         return $this->make($key);
                     }
+                    // $dep is real dependency and not making $key
+                    if ($key !== $dep && isset($this->delegate[$dep])) {
+                        return $this->delegate[$dep];
+                    }
                     return $this->make($dep, $args);
                 }
             ]);

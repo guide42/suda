@@ -5,6 +5,7 @@
   - [BC-BREAK] Factory call to make without parameters use make of key class.
   - [BC-BREAK] Call a function will resolve parameters from it's own instead of delegate.
   - [BC-BREAK] Resolve parameters default values.
+  - [BC-BREAK] Factory make with dependency can be configured in delegate.
 
 ### 0.12.0
 
