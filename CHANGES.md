@@ -1,5 +1,7 @@
 ## CHANGES
 
+ - [BC-BREAK] Drop PSR-11 support.
+
 ### 0.13.0
 
   - [BC-BREAK] Factory call to make without parameters use make of key class.

@@ -3,8 +3,6 @@ SUDA
 
 Suda is a lightweight container for your services.
 
-This library is compatible with [PSR-11](https://github.com/php-fig/container).
-
 API
 ---
 

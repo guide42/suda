@@ -14,10 +14,6 @@
         "kahlan/kahlan": "@stable"
     },
     "require": {
-        "php": "^7.1",
-        "psr/container": "^1.0"
-    },
-    "provide": {
-        "psr/container-implementation": "1.0"
+        "php": "^7.1"
     }
 }
