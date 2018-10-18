@@ -5,13 +5,13 @@ namespace suda;
 /** Registry of values and dependency injector. */
 class Registry implements \ArrayAccess
 {
-    private $keys = array();
-    private $values = array();
-    private $loading = array();
-    private $factories = array();
+    private $keys = [];
+    private $values = [];
+    private $loading = [];
+    private $factories = [];
     private $delegate;
 
-    function __construct(array $values = array(), self $delegate=null) {
+    function __construct(array $values=[], self $delegate=null) {
         $this->delegate = $delegate ?: $this;
 
         foreach ($values as $key => $value) {
@@ -28,7 +28,7 @@ class Registry implements \ArrayAccess
     }
 
     /** Assign values and, if key is class or interface, factories. */
-    function offsetSet($key, $value) {
+    function offsetSet($key, $value): void {
         if (!is_string($key)) {
             throw new \TypeError('Entry must be string');
         }
@@ -109,7 +109,7 @@ class Registry implements \ArrayAccess
     }
 
     /** Returns true if key exists in registry, false otherwise. */
-    function offsetExists($key) {
+    function offsetExists($key): bool {
         if (!is_string($key)) {
             return false;
         }
@@ -117,7 +117,7 @@ class Registry implements \ArrayAccess
     }
 
     /** Remove a key from the registry. */
-    function offsetUnset($key) {
+    function offsetUnset($key): void {
         if (is_string($key)) {
             unset($this->keys[$key], $this->values[$key], $this->factories[$key]);
         }

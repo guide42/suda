@@ -1,6 +1,7 @@
 ## CHANGES
 
  - [BC-BREAK] Drop PSR-11 support.
+ - [BC-BREAK] Require PHP 7.2 minimum.
 
 ### 0.13.0
 
