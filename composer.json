@@ -11,7 +11,7 @@
         "psr-4": {"suda\\": "library/"}
     },
     "require-dev": {
-        "kahlan/kahlan": "@stable"
+        "kahlan/kahlan": "*"
     },
     "require": {
         "php": "^7.1"
