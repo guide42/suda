@@ -48,24 +48,18 @@ describe('Registry', function() {
         });
     });
 
-    describe('withDelegate', function() {
-        it('returns a clone with new delegate', function() {
+    describe('setDelegate', function() {
+        it('assigns a new delegate', function() {
             $delegate0 = new Registry([Engine::class => V8::class]);
             $delegate1 = new Registry([Engine::class => function() {
                 return new W16(new V8, new V8);
             }]);
 
-            $di0 = new Registry([Car::class => Car::class]);
-            $di1 = $di0->withDelegate($delegate0);
-            $di2 = $di1->withDelegate($delegate1);
+            $di1 = new Registry([Car::class => Car::class]);
+            $di1->setDelegate($delegate0);
 
-            expect($di0)->not->toBe($di1)->not->toBe($di2);
-            expect($di1)->not->toBe($di2);
-
-            expect(function() use($di0) {
-                $di0->offsetGet(Engine::class);
-            })
-            ->toThrow(new RuntimeException('Entry [Engine] not found'));
+            $di2 = new Registry([Car::class => Car::class]);
+            $di2->setDelegate($delegate1);
 
             expect($di1->offsetGet(Car::class)->engine)->toBeAnInstanceOf(V8::class);
             expect($di2->offsetGet(Car::class)->engine)->toBeAnInstanceOf(W16::class);

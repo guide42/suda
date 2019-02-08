@@ -36,12 +36,9 @@ class Registry implements \ArrayAccess
         }
     }
 
-    /** Copy of itself with new delegate registry. */
-    function withDelegate(self $delegate): self {
-        $new = clone $this;
-        $new->delegate = $delegate;
-
-        return $new;
+    /** Assign a new delegate registry. */
+    function setDelegate(self $delegate) {
+        $this->delegate = $delegate;
     }
 
     /** Assigns a new reflection maker. */
