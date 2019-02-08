@@ -232,16 +232,6 @@ describe('Registry', function() {
             expect($di->offsetGet(V8::class))->toBeAnInstanceOf(V8::class);
         });
 
-        it('calls factory and resolve parameters', function() {
-            $di = new Registry;
-            $di->offsetSet(V8::class, V8::class);
-            $di->offsetSet(Engine::class, function($c, $make, V8 $v8) {
-                return $v8;
-            });
-
-            expect($di->offsetGet(Engine::class))->toBeAnInstanceOf(V8::class);
-        });
-
         it('throws LogicException when factory does not return an instance of the abstract', function() {
             $di = new Registry;
             $di->offsetSet(Engine::class, function() {
