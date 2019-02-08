@@ -21,6 +21,8 @@ $di[string $key] = mixed $value;                       // stores a parameter
 
 $di(callable $fn);                                     // call a function resolving it's parameters
 $di(callable $fn, array $arguments);                   // ... with given arguments
+
+$di->setReflector(callable $reflector);         // returns itself with Reflection cache function
 ```
 
 Badges

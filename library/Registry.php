@@ -10,9 +10,26 @@ class Registry implements \ArrayAccess
     private $loading = [];
     private $factories = [];
     private $delegate;
+    private $reflector;
 
     function __construct(array $values=[], self $delegate=null) {
         $this->delegate = $delegate ?: $this;
+        $this->reflector = function($class, string $method = null) {
+            static $cache = [];
+            $key = is_string($class) ? $class : spl_object_hash($class);
+            if ($method === null) {
+                if (!isset($cache[$key])) {
+                    $cache[$key] = new \ReflectionClass($class);
+                }
+            } else {
+                $key .= '::' . $method;
+                if (!isset($cache[$key])) {
+                    $cache[$key] = new \ReflectionMethod($class, $method);
+                }
+            }
+
+            return $cache[$key];
+        };
 
         foreach ($values as $key => $value) {
             $this->offsetSet($key, $value);
@@ -25,6 +42,11 @@ class Registry implements \ArrayAccess
         $new->delegate = $delegate;
 
         return $new;
+    }
+
+    /** Assigns a new reflection maker. */
+    function setReflector(callable $reflector): self {
+        $this->reflector = $reflector;
     }
 
     /** Assign values and, if key is class or interface, factories. */
@@ -129,31 +151,31 @@ class Registry implements \ArrayAccess
             if (strpos($fn, '::') !== false) {
                 list($class, $method) = explode('::', $fn, 2);
                 $instance = $this[$class];
-                $reflector = new \ReflectionMethod($instance, $method);
+                $reflection = $this->refl($instance, $method);
             } else {
                 $instance = $this[$fn];
-                $reflector = new \ReflectionMethod($instance, '__invoke');
+                $reflection = $this->refl($instance, '__invoke');
             }
         } elseif (method_exists($fn, '__invoke')) {
             $instance = $fn;
-            $reflector = new \ReflectionMethod($instance, '__invoke');
+            $reflection = $this->refl($instance, '__invoke');
         } elseif (is_array($fn) && isset($fn[0], $fn[1]) && count($fn) === 2) {
             $instance = is_string($fn[0]) ? $this[$fn[0]] : $fn[0];
-            $reflector = new \ReflectionMethod($instance, $fn[1]);
+            $reflection = $this->refl($instance, $fn[1]);
         } else {
             throw new \InvalidArgumentException('Target must be a callable');
         }
 
-        $context = $this->buildContext($this, $reflector->getParameters(), $args);
-        $return = $reflector->invokeArgs($instance, $context);
+        $context = $this->buildContext($this, $reflection->getParameters(), $args);
+        $return = $reflection->invokeArgs($instance, $context);
 
         return $return;
     }
 
     private function make(string $class, array $args=[]) {
-        $reflector = new \ReflectionClass($class);
+        $reflection = $this->refl($class);
 
-        if (!$reflector->isInstantiable()) {
+        if (!$reflection->isInstantiable()) {
             if (empty($this->loading)) {
                 throw new \InvalidArgumentException("Target [$class] cannot be construct");
             }
@@ -163,7 +185,7 @@ class Registry implements \ArrayAccess
             ));
         }
 
-        $constructor = $reflector->getConstructor();
+        $constructor = $reflection->getConstructor();
 
         if (is_null($constructor)) {
             return new $class;
@@ -176,7 +198,7 @@ class Registry implements \ArrayAccess
         $this->loading[$class] = count($this->loading);
 
         $context = $this->buildContext($this->delegate, $constructor->getParameters(), $args);
-        $service = $reflector->newInstanceArgs($context);
+        $service = $reflection->newInstanceArgs($context);
 
         array_pop($this->loading);
 
@@ -228,5 +250,12 @@ class Registry implements \ArrayAccess
             }
         }
         return $value;
+    }
+
+    private function refl($class, string $method = null) {
+        $reflector = $this->reflector;
+        $reflection = $reflector($class, $method);
+
+        return $reflection;
     }
 }

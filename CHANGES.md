@@ -2,6 +2,7 @@
 
  - [BC-BREAK] Drop PSR-11 support.
  - [BC-BREAK] Require PHP 7.2 minimum.
+ - New `Registry::setReflector` to assign a function to cache the creation of `Reflection` objects.
 
 ### 0.13.0
 
