@@ -5,7 +5,7 @@ use suda\Registry;
 interface Engine {}
 
 class V8 implements Engine {
-    function __invoke(string $prefix='$prefix') {
+    function __invoke(string $prefix='') {
         return "${prefix}World";
     }
 }
@@ -330,18 +330,16 @@ describe('Registry', function() {
 
         it('calls callable when class that is in container and has __invoke method is given', function() {
             $di = new Registry;
-            $di->offsetSet('prefix', 'Hello ');
             $di->offsetSet(Engine::class, V8::class);
 
-            expect($di->__invoke(Engine::class))->toBe('Hello World');
+            expect($di->__invoke(Engine::class))->toBe('World');
         });
 
         it('calls callable when class that is in container and method split by :: is given', function() {
             $di = new Registry;
-            $di->offsetSet('prefix', 'Hello ');
             $di->offsetSet(Engine::class, V8::class);
 
-            expect($di->__invoke(Engine::class . '::__invoke'))->toBe('Hello World');
+            expect($di->__invoke(Engine::class . '::__invoke'))->toBe('World');
         });
 
         it('calls callable when array of object and method is given', function() {
@@ -350,10 +348,9 @@ describe('Registry', function() {
 
         it('calls callable when array of class that is in container and method is given', function() {
             $di = new Registry;
-            $di->offsetSet('prefix', 'Hello ');
             $di->offsetSet(Engine::class, V8::class);
 
-            expect($di->__invoke([Engine::class, '__invoke']))->toBe('Hello World');
+            expect($di->__invoke([Engine::class, '__invoke']))->toBe('World');
         });
 
         it('calls callable when string of closure that is in the container is given', function() {
