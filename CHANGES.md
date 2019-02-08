@@ -1,5 +1,7 @@
 ## CHANGES
 
+### 0.14.0
+
  - [BC-BREAK] Drop PSR-11 support.
  - [BC-BREAK] Require PHP 7.2 minimum.
  - [BC-BREAK] Doesn't resolve parameters for factories anymore.
