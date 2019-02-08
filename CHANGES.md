@@ -1,5 +1,7 @@
 ## CHANGES
 
+ - [BC-BREAK] Reflector parameter `$method` is no longer nullable. Only `ReflectionMethod` should be constructed.
+
 ### 0.14.0
 
  - [BC-BREAK] Drop PSR-11 support.

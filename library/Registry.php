@@ -14,18 +14,13 @@ class Registry implements \ArrayAccess
 
     function __construct(array $values=[], self $delegate=null) {
         $this->delegate = $delegate ?: $this;
-        $this->reflector = function($class, string $method = null) {
+        $this->reflector = function($class, string $method) {
             static $cache = [];
-            $key = is_string($class) ? $class : spl_object_hash($class);
-            if ($method === null) {
-                if (!isset($cache[$key])) {
-                    $cache[$key] = new \ReflectionClass($class);
-                }
-            } else {
-                $key .= '::' . $method;
-                if (!isset($cache[$key])) {
-                    $cache[$key] = new \ReflectionMethod($class, $method);
-                }
+
+            $key = (is_string($class) ? $class : spl_object_hash($class)) .  '::' . $method;
+
+            if (!isset($cache[$key])) {
+                $cache[$key] = new \ReflectionMethod($class, $method);
             }
 
             return $cache[$key];
@@ -170,7 +165,7 @@ class Registry implements \ArrayAccess
     }
 
     private function make(string $class, array $args=[]) {
-        $reflection = $this->refl($class);
+        $reflection = new \ReflectionClass($class);
 
         if (!$reflection->isInstantiable()) {
             if (empty($this->loading)) {
