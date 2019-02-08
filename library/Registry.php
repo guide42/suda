@@ -42,7 +42,7 @@ class Registry implements \ArrayAccess
     }
 
     /** Assigns a new reflection maker. */
-    function setReflector(callable $reflector): self {
+    function setReflector(callable $reflector) {
         $this->reflector = $reflector;
     }
 
