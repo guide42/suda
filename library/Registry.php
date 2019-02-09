@@ -39,11 +39,6 @@ class Registry implements \ArrayAccess
         }
     }
 
-    /** Assigns a new reflection maker. */
-    function setReflector(callable $reflector) {
-        $this->reflector = $reflector;
-    }
-
     /** Disallow to assign values or factories, optional, for a specific key. */
     function freeze(string $key=null) {
         if ($key === null) {

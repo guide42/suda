@@ -22,8 +22,6 @@ $di(callable $fn, array $arguments);                   // ... with given argumen
 
 $di->freeze();                                         // Disallow to store values or factories
 $di->freeze(string $key);                              // ... for this entry key
-
-$di->setReflector(callable $reflector);                // sets the cache function for ReflectionMethod
 ```
 
 Badges
