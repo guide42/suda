@@ -50,12 +50,12 @@ class Registry implements \ArrayAccess
         if (interface_exists($key, false) || class_exists($key, false)) {
             if (is_array($value)) {
                 // $this[Car::class] = [V8::class];
-                $value = function(self $self, callable $make) use($key, $value) {
+                $value = function(self $delegate, callable $make) use($key, $value) {
                     return $make($key, $value);
                 };
             } elseif (is_string($value) && class_exists($value, false)) {
                 // $this[Engine::class] = V8::class;
-                $value = function(self $self, callable $make) use($value) {
+                $value = function(self $delegate, callable $make) use($value) {
                     return $make($value);
                 };
             }
@@ -66,10 +66,10 @@ class Registry implements \ArrayAccess
 
             if (isset($this->factories[$key])) {
                 $prev = $this->factories[$key];
-                $value = function(self $self, callable $make) use($value, $prev) {
-                    return $value($self, function(string $dep=null, array $args=[]) use($prev, $self, $make) {
+                $value = function(self $delegate, callable $make) use($value, $prev) {
+                    return $value($delegate, function(string $dep=null, array $args=[]) use($prev, $delegate, $make) {
                         if (is_null($dep) && empty($args)) {
-                            return $prev($self, $make);
+                            return $prev($delegate, $make);
                         }
                         return $make($dep, $args);
                     });
@@ -138,17 +138,17 @@ class Registry implements \ArrayAccess
         if (is_string($fn)) {
             if (strpos($fn, '::') !== false) {
                 list($class, $method) = explode('::', $fn, 2);
-                $instance = $this[$class];
+                $instance = $this->offsetGet($class);
                 $reflection = $this->refl($instance, $method);
             } else {
-                $instance = $this[$fn];
+                $instance = $this->offsetGet($fn);
                 $reflection = $this->refl($instance, '__invoke');
             }
         } elseif (method_exists($fn, '__invoke')) {
             $instance = $fn;
             $reflection = $this->refl($instance, '__invoke');
         } elseif (is_array($fn) && isset($fn[0], $fn[1]) && count($fn) === 2) {
-            $instance = is_string($fn[0]) ? $this[$fn[0]] : $fn[0];
+            $instance = is_string($fn[0]) ? $this->offsetGet($fn[0]) : $fn[0];
             $reflection = $this->refl($instance, $fn[1]);
         } else {
             throw new \InvalidArgumentException('Target must be a callable');
@@ -209,8 +209,8 @@ class Registry implements \ArrayAccess
                 $context[$index] = $this->resolve($self, $args[$param->getPosition()]);
             } elseif (isset($args[$name])) {
                 $context[$index] = $this->resolve($self, $args[$name]);
-            } elseif ($param->hasType() && !$param->getType()->isBuiltin() && isset($self[strval($param->getType())])) {
-                $context[$index] = $self[strval($param->getType())];
+            } elseif ($param->hasType() && !$param->getType()->isBuiltin() && $self->offsetExists(strval($param->getType()))) {
+                $context[$index] = $self->offsetGet(strval($param->getType()));
             } elseif ($param->isDefaultValueAvailable()) {
                 $context[$index] = $param->getDefaultValue();
             } elseif ($param->isOptional() && !$param->isVariadic()) {
@@ -231,10 +231,10 @@ class Registry implements \ArrayAccess
     private function resolve(self $self, $value) {
         if (is_string($value)) {
             if (strncmp($value, '$', 1) === 0) {
-                return $self[substr($value, 1)];
+                return $self->offsetGet(substr($value, 1));
             }
             if (interface_exists($value, false) || class_exists($value, false)) {
-                return $self[$value];
+                return $self->offsetGet($value);
             }
         }
         return $value;
