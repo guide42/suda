@@ -1,5 +1,7 @@
 ## CHANGES
 
+### 0.15.0
+
  - Constructor now accepts a 3rd parameter for the reflection cache callable.
  - [BC-BREAK] Remove `Registry::setDelegate` and `Registry::setReflector`.
  - [BC-BREAK] Default values in parameters are not resolved.
