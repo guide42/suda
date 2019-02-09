@@ -69,7 +69,11 @@ describe('Registry', function() {
     describe('setReflector', function() {
         it('assigns a new reflector function that expects two parameters', function() {
             $di = new Registry([Engine::class => V8::class]);
-            $di->setReflector(function($a, $b) {
+            $di->setReflector(function($a, $b=null) {
+                if ($b === null) {
+                    expect($a)->toBe('V8');
+                    return new ReflectionClass('V8');
+                }
                 expect($a)->toBeAnInstanceOf(V8::class);
                 expect($b)->toBe('__invoke');
                 return new ReflectionMethod($a, '__invoke');

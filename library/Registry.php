@@ -15,13 +15,20 @@ class Registry implements \ArrayAccess
 
     function __construct(array $values=[], self $delegate=null) {
         $this->delegate = $delegate ?: $this;
-        $this->reflector = function($class, string $method) {
+        $this->reflector = function($class, string $method=null) {
             static $cache = [];
 
-            $key = (is_string($class) ? $class : spl_object_hash($class)) .  '::' . $method;
+            $key = (is_string($class) ? $class : spl_object_hash($class));
+            if ($method !== null) {
+                $key .= '::' . $method;
+            }
 
             if (!isset($cache[$key])) {
-                $cache[$key] = new \ReflectionMethod($class, $method);
+                if ($method !== null) {
+                    $cache[$key] = new \ReflectionMethod($class, $method);
+                } else {
+                    $cache[$key] = new \ReflectionClass($class);
+                }
             }
 
             return $cache[$key];
@@ -160,17 +167,17 @@ class Registry implements \ArrayAccess
             if (strpos($fn, '::') !== false) {
                 list($class, $method) = explode('::', $fn, 2);
                 $instance = $this->offsetGet($class);
-                $reflection = $this->refl($instance, $method);
+                $reflection = ($this->reflector)($instance, $method);
             } else {
                 $instance = $this->offsetGet($fn);
-                $reflection = $this->refl($instance, '__invoke');
+                $reflection = ($this->reflector)($instance, '__invoke');
             }
         } elseif (method_exists($fn, '__invoke')) {
             $instance = $fn;
-            $reflection = $this->refl($instance, '__invoke');
+            $reflection = ($this->reflector)($instance, '__invoke');
         } elseif (is_array($fn) && isset($fn[0], $fn[1]) && count($fn) === 2) {
             $instance = is_string($fn[0]) ? $this->offsetGet($fn[0]) : $fn[0];
-            $reflection = $this->refl($instance, $fn[1]);
+            $reflection = ($this->reflector)($instance, $fn[1]);
         } else {
             throw new \InvalidArgumentException('Target must be a callable');
         }
@@ -182,7 +189,7 @@ class Registry implements \ArrayAccess
     }
 
     private function make(string $class, array $args=[]) {
-        $reflection = new \ReflectionClass($class);
+        $reflection = ($this->reflector)($class);
 
         if (!$reflection->isInstantiable()) {
             if (empty($this->loading)) {
@@ -259,12 +266,5 @@ class Registry implements \ArrayAccess
             }
         }
         return $value;
-    }
-
-    private function refl($class, string $method = null) {
-        $reflector = $this->reflector;
-        $reflection = $reflector($class, $method);
-
-        return $reflection;
     }
 }
