@@ -85,6 +85,28 @@ describe('Registry', function() {
 
             $di->freeze();
         });
+
+        it('returns the total number of entries', function() {
+            $di = new Registry([
+                'foo' => 'bar',
+                'bar' => 'baz',
+            ]);
+
+            expect($di->freeze())->toBe(2);
+            expect($di->freeze('foo'))->toBe(2);
+        });
+
+        it('returns the number of frozen entries', function() {
+            $di = new Registry([
+                'foo' => 'bar',
+                'bar' => 'baz',
+                'baz' => 'foo',
+            ]);
+
+            expect($di->freeze('foo'))->toBe(1);
+            expect($di->freeze('bar'))->toBe(2);
+            expect($di->freeze('baz'))->toBe(3);
+        });
     });
 
     describe('offsetSet', function() {

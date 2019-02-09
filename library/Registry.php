@@ -40,12 +40,14 @@ class Registry implements \ArrayAccess
     }
 
     /** Disallow to assign values or factories, optional, for a specific key. */
-    function freeze(string $key=null) {
+    function freeze(string $key=null): int {
         if ($key === null) {
             $this->frozen = true;
         } elseif ($this->frozen !== true) {
             $this->frozen[$key] = true;
+            return count($this->frozen);
         }
+        return count($this->keys);
     }
 
     /** Assign values and, if key is class or interface, factories. */
