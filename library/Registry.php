@@ -39,11 +39,6 @@ class Registry implements \ArrayAccess
         }
     }
 
-    /** Assign a new delegate registry. */
-    function setDelegate(self $delegate) {
-        $this->delegate = $delegate;
-    }
-
     /** Assigns a new reflection maker. */
     function setReflector(callable $reflector) {
         $this->reflector = $reflector;

@@ -48,24 +48,6 @@ describe('Registry', function() {
         });
     });
 
-    describe('setDelegate', function() {
-        it('assigns a new delegate', function() {
-            $delegate0 = new Registry([Engine::class => V8::class]);
-            $delegate1 = new Registry([Engine::class => function() {
-                return new W16(new V8, new V8);
-            }]);
-
-            $di1 = new Registry([Car::class => Car::class]);
-            $di1->setDelegate($delegate0);
-
-            $di2 = new Registry([Car::class => Car::class]);
-            $di2->setDelegate($delegate1);
-
-            expect($di1->offsetGet(Car::class)->engine)->toBeAnInstanceOf(V8::class);
-            expect($di2->offsetGet(Car::class)->engine)->toBeAnInstanceOf(W16::class);
-        });
-    });
-
     describe('setReflector', function() {
         it('assigns a new reflector function that expects two parameters', function() {
             $di = new Registry([Engine::class => V8::class]);
