@@ -20,8 +20,8 @@ $di[string $key] = mixed $value;                       // stores a parameter
 $di(callable $fn);                                     // call a function resolving it's parameters
 $di(callable $fn, array $arguments);                   // ... with given arguments
 
-$di->setDelegate(Registry $delegate);                  // returns a copy of itself with given delegate
-$di->setReflector(callable $reflector);                // returns itself with Reflection cache function
+$di->setDelegate(Registry $delegate);                  // assigns a new delegate
+$di->setReflector(callable $reflector);                // sets the cache function for ReflectionMethod
 ```
 
 Badges
