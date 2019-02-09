@@ -205,18 +205,6 @@ describe('Registry', function() {
             $di->offsetGet(Engine::class);
         });
 
-        it('calls factory with make function that creates an instance from deleagte', function() {
-            $delegate = new Registry;
-            $delegate->offsetSet(V8::class, V8::class);
-
-            $di = new Registry([], $delegate);
-            $di->offsetSet(Engine::class, function($c, $make) {
-                return $make(V8::class);
-            });
-
-            expect($di->offsetGet(Engine::class))->toBeAnInstanceOf(V8::class);
-        });
-
         it('calls factory with make function that creates an instance and resolve it\'s parameters from deleagte', function() {
             $delegate = new Registry;
             $delegate->offsetSet(Engine::class, V8::class);
@@ -227,6 +215,8 @@ describe('Registry', function() {
             });
 
             expect($di->offsetGet(Engine::class))->toBeAnInstanceOf(W16::class);
+            expect($di->offsetGet(Engine::class)->left)->toBeAnInstanceOf(V8::class);
+            expect($di->offsetGet(Engine::class)->right)->toBeAnInstanceOf(V8::class);
         });
 
         it('calls factory with make function that when called without parameters it creates an instance of the abstract', function() {
