@@ -1,5 +1,6 @@
 ## CHANGES
 
+ - Constructor now accepts a 3rd parameter for the reflection cache callable.
  - [BC-BREAK] Remove `Registry::setDelegate` and `Registry::setReflector`.
  - [BC-BREAK] Default values in parameters are not resolved.
  - [BC-BREAK] Given `$make` function doesn't retrieve dependencies, just make object without cache.

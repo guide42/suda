@@ -11,11 +11,11 @@ class Registry implements \ArrayAccess
     private $loading = [];
     private $factories = [];
     private $delegate;
-    private $reflector;
+    private $refl;
 
-    function __construct(array $values=[], self $delegate=null) {
+    function __construct(array $values=[], self $delegate=null, callable $refl=null) {
         $this->delegate = $delegate ?: $this;
-        $this->reflector = function($class, string $method=null) {
+        $this->refl = $refl ?: function($class, string $method=null) {
             static $cache = [];
 
             $key = (is_string($class) ? $class : spl_object_hash($class));
@@ -157,17 +157,17 @@ class Registry implements \ArrayAccess
             if (strpos($fn, '::') !== false) {
                 list($class, $method) = explode('::', $fn, 2);
                 $instance = $this->offsetGet($class);
-                $reflection = ($this->reflector)($instance, $method);
+                $reflection = ($this->refl)($instance, $method);
             } else {
                 $instance = $this->offsetGet($fn);
-                $reflection = ($this->reflector)($instance, '__invoke');
+                $reflection = ($this->refl)($instance, '__invoke');
             }
         } elseif (method_exists($fn, '__invoke')) {
             $instance = $fn;
-            $reflection = ($this->reflector)($instance, '__invoke');
+            $reflection = ($this->refl)($instance, '__invoke');
         } elseif (is_array($fn) && isset($fn[0], $fn[1]) && count($fn) === 2) {
             $instance = is_string($fn[0]) ? $this->offsetGet($fn[0]) : $fn[0];
-            $reflection = ($this->reflector)($instance, $fn[1]);
+            $reflection = ($this->refl)($instance, $fn[1]);
         } else {
             throw new \InvalidArgumentException('Target must be a callable');
         }
@@ -179,7 +179,7 @@ class Registry implements \ArrayAccess
     }
 
     private function make(string $class, array $args=[]) {
-        $reflection = ($this->reflector)($class);
+        $reflection = ($this->refl)($class);
 
         if (!$reflection->isInstantiable()) {
             if (empty($this->loading)) {
