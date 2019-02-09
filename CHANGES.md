@@ -3,6 +3,7 @@
  - [BC-BREAK] Reflector parameter `$method` is no longer nullable. Only `ReflectionMethod` should be constructed.
  - [BC-BREAK] Default values in parameters are not resolved.
  - [BC-BREAK] Given `$make` function doesn't retrieve dependencies, just make object without cache.
+ - New `Registry::freeze` to disallow new values or factories to be assigned.
 
 ### 0.14.0
 

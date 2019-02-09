@@ -6,6 +6,7 @@ namespace suda;
 class Registry implements \ArrayAccess
 {
     private $keys = [];
+    private $frozen = [];
     private $values = [];
     private $loading = [];
     private $factories = [];
@@ -41,10 +42,23 @@ class Registry implements \ArrayAccess
         $this->reflector = $reflector;
     }
 
+    /** Disallow to assign values or factories, optional, for a specific key. */
+    function freeze(string $key=null) {
+        if ($key === null) {
+            $this->frozen = true;
+        } elseif ($this->frozen !== true) {
+            $this->frozen[$key] = true;
+        }
+    }
+
     /** Assign values and, if key is class or interface, factories. */
     function offsetSet($key, $value): void {
         if (!is_string($key)) {
             throw new \TypeError('Entry must be string');
+        }
+
+        if ($this->frozen === true || isset($this->frozen[$key])) {
+            throw new \RuntimeException("Entry [$key] is frozen");
         }
 
         if (interface_exists($key, false) || class_exists($key, false)) {
@@ -92,6 +106,10 @@ class Registry implements \ArrayAccess
             throw new \TypeError('Entry must be string');
         }
 
+        if ($this->frozen !== true) {
+            $this->frozen[$key] = true;
+        }
+
         if (isset($this->values[$key])) {
             return $this->values[$key];
         }
@@ -128,8 +146,11 @@ class Registry implements \ArrayAccess
 
     /** Remove a key from the registry. */
     function offsetUnset($key): void {
+        if ($this->frozen === true) {
+            throw new \RuntimeException('Registry is frozen');
+        }
         if (is_string($key)) {
-            unset($this->keys[$key], $this->values[$key], $this->factories[$key]);
+            unset($this->keys[$key], $this->frozen[$key], $this->values[$key], $this->factories[$key]);
         }
     }
 

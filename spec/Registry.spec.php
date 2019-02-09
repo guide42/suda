@@ -78,6 +78,45 @@ describe('Registry', function() {
         });
     });
 
+    describe('freeze', function() {
+        it('freeze a entry', function() {
+            $di = new Registry([Engine::class => V8::class]);
+            $di->freeze(Engine::class);
+
+            expect(function() use($di) {
+                $di[Engine::class] = function() {
+                    return new W16(new V8, new V8);
+                };
+            })
+            ->toThrow(new RuntimeException('Entry [Engine] is frozen'));
+        });
+
+        it('freeze all entries', function() {
+            $di = new Registry([Engine::class => V8::class]);
+            $di->freeze();
+
+            expect(function() use($di) {
+                $di[Engine::class] = function() {
+                    return new W16(new V8, new V8);
+                };
+            })
+            ->toThrow(new RuntimeException('Entry [Engine] is frozen'));
+        });
+
+        it('does nothing after it has been frozen', function() {
+            $di = new Registry;
+            $di->freeze();
+            $di->freeze('foo');
+
+            expect(function() use($di) {
+                unset($di['foo']);
+            })
+            ->toThrow(new RuntimeException('Registry is frozen'));
+
+            $di->freeze();
+        });
+    });
+
     describe('offsetSet', function() {
         it('assigns parameters', function() {
             $di = new Registry;
@@ -164,7 +203,21 @@ describe('Registry', function() {
             ->toThrow(new InvalidArgumentException('Service factory must be callable'));
         });
 
-        it('throw TypeError when key is not string', function() {
+        it('throws RuntimeException when entry is frozen', function() {
+            $di = new Registry([Engine::class => V8::class]);
+            $v8 = $di->offsetGet(Engine::class);
+
+            expect($v8)->toBeAnInstanceOf(V8::class);
+
+            expect(function() use($di) {
+                $di->offsetSet(Engine::class, function() {
+                    return new W16(new V8, new V8);
+                });
+            })
+            ->toThrow(new RuntimeException('Entry [Engine] is frozen'));
+        });
+
+        it('throws TypeError when key is not string', function() {
             $di = new Registry;
 
             expect(function() use($di) {
@@ -285,6 +338,16 @@ describe('Registry', function() {
     });
 
     describe('offsetUnset', function() {
+        it('throws RuntimeException when Registry is frozen', function() {
+            $di = new Registry;
+            $di->freeze();
+
+            expect(function() use($di) {
+                unset($di['foo']);
+            })
+            ->toThrow(new RuntimeException('Registry is frozen'));
+        });
+
         it('removes a parameter/factory', function() {
             $di = new Registry;
             $di->offsetSet('param', 'value');
