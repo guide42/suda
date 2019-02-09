@@ -63,12 +63,12 @@ class Registry implements \ArrayAccess
         if (interface_exists($key, false) || class_exists($key, false)) {
             if (is_array($value)) {
                 // $this[Car::class] = [V8::class];
-                $value = function(self $delegate, callable $make) use($key, $value) {
+                $value = function(callable $make) use($key, $value) {
                     return $make($key, $value);
                 };
             } elseif (is_string($value) && class_exists($value, false)) {
                 // $this[Engine::class] = V8::class;
-                $value = function(self $delegate, callable $make) use($value) {
+                $value = function(callable $make) use($value) {
                     return $make($value);
                 };
             }
@@ -79,13 +79,15 @@ class Registry implements \ArrayAccess
 
             if (isset($this->factories[$key])) {
                 $prev = $this->factories[$key];
-                $value = function(self $delegate, callable $make) use($value, $prev) {
-                    return $value($delegate, function(string $dep=null, array $args=[]) use($prev, $delegate, $make) {
-                        if (is_null($dep) && empty($args)) {
-                            return $prev($delegate, $make);
-                        }
-                        return $make($dep, $args);
-                    });
+                $value = function(callable $make) use($value, $prev) {
+                    return $this->__invoke($value, [
+                        function(string $dep=null, array $args=[]) use($prev, $make) {
+                            if (is_null($dep) && empty($args)) {
+                                return $this->__invoke($prev, [$make]);
+                            }
+                            return $make($dep, $args);
+                        },
+                    ]);
                 };
             }
 
@@ -114,7 +116,7 @@ class Registry implements \ArrayAccess
         }
 
         if (isset($this->factories[$key])) {
-            $service = $this->factories[$key]($this->delegate,
+            $service = $this->__invoke($this->factories[$key], [
                 function(string $dep=null, array $args=[]) use($key) {
                     // $dep should be a concrete class or null
                     // $key could be abstract or interface
@@ -122,8 +124,8 @@ class Registry implements \ArrayAccess
                         return $this->make($key);
                     }
                     return $this->make($dep, $args);
-                }
-            );
+                },
+            ]);
 
             if (!$service instanceof $key) {
                 throw new \LogicException("Service factory must return an instance of [$key]");

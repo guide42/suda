@@ -48,15 +48,26 @@ describe('Registry', function() {
         });
 
         it('accepts a reflection creator function', function() {
-            $di = new Registry(
-                [Engine::class => V8::class],
-                null,
+            $di = new Registry([Engine::class => V8::class], null,
                 function($class, string $method=null) {
+                    static $first = false;
                     if ($method === null) {
+                        // This is the second call.
+                        // Here is asking to make the object from within
+                        // the constructor factory calling `$make` without
+                        // any parameters.
                         expect($class)->toBe('V8');
-                        return new ReflectionClass('V8');
+                        return new ReflectionClass($class);
                     }
-                    expect($class)->toBeAnInstanceOf(V8::class);
+                    if (!$first) {
+                        // This is the factory defined in the constructor.
+                        // Is used to create the V8 object.
+                        expect($class)->toBeAnInstanceOf(Closure::class);
+                        $first = true;
+                    } else {
+                        // As last call is the call to the function itself.
+                        expect($class)->toBeAnInstanceOf(V8::class);
+                    }
                     expect($method)->toBe('__invoke');
                     return new ReflectionMethod($class, '__invoke');
                 }
@@ -174,13 +185,13 @@ describe('Registry', function() {
             $count = 0;
 
             $di = new Registry;
-            $di->offsetSet(Engine::class, function($c, $make) use(&$v8, &$count) {
+            $di->offsetSet(Engine::class, function(callable $make) use(&$v8, &$count) {
                 $v8 = new V8;
                 $count++;
 
                 return $v8;
             });
-            $di->offsetSet(Engine::class, function($c, $make) use(&$v8, &$count) {
+            $di->offsetSet(Engine::class, function(callable $make) use(&$v8, &$count) {
                 $service = $make();
                 $count++;
 
@@ -255,11 +266,10 @@ describe('Registry', function() {
             expect($count)->toBe(1);
         });
 
-        it('calls factory with delegate instance and a make function', function() {
+        it('calls factory with make function', function() {
             $delegate = new Registry;
             $di = new Registry([], $delegate);
-            $di->offsetSet(Engine::class, function($c, $make) use($delegate) {
-                expect($c)->toBe($delegate);
+            $di->offsetSet(Engine::class, function(callable $make) use($delegate) {
                 expect($make)->toBeAnInstanceOf(Closure::class);
 
                 return new V8;
@@ -267,12 +277,31 @@ describe('Registry', function() {
             $di->offsetGet(Engine::class);
         });
 
+        it('calls factory with make function that creates an instance with dependencies from deleagte', function() {
+            $delegate = new Registry;
+            $delegate->offsetSet('leftEngine', new V8);
+            $delegate->offsetSet('rightEngine', new V8);
+
+            $di = new Registry([], $delegate);
+            $di->offsetSet('leftEngine', new W16(new V8, new V8));
+            $di->offsetSet('rightEngine', new W16(new V8, new V8));
+            $di->offsetSet(Engine::class, function(callable $make) {
+                return $make(W16::class, [
+                    'left' => '$leftEngine',
+                    'right' => '$rightEngine',
+                ]);
+            });
+
+            expect($di->offsetGet(Engine::class))->toBeAnInstanceOf(W16::class);
+            expect($di->offsetGet(Engine::class)->left)->toBeAnInstanceOf(V8::class);
+        });
+
         it('calls factory with make function that creates an instance and resolve it\'s parameters from deleagte', function() {
             $delegate = new Registry;
             $delegate->offsetSet(Engine::class, V8::class);
 
             $di = new Registry([], $delegate);
-            $di->offsetSet(Engine::class, function($c, $make) {
+            $di->offsetSet(Engine::class, function(callable $make) {
                 return $make(W16::class);
             });
 
@@ -283,7 +312,7 @@ describe('Registry', function() {
 
         it('calls factory with make function that when called without parameters it creates an instance of the abstract', function() {
             $di = new Registry;
-            $di->offsetSet(V8::class, function($c, $make) {
+            $di->offsetSet(V8::class, function(callable $make) {
                 return $make();
             });
 
@@ -583,7 +612,7 @@ describe('Registry', function() {
 
         it('throws InvalidArgumentException when given class is abstract or interface', function() {
             $di = new Registry;
-            $di->offsetSet(Engine::class, function($c, $make) {
+            $di->offsetSet(Engine::class, function(callable $make) {
                 return $make(Engine::class);
             });
 
@@ -595,7 +624,7 @@ describe('Registry', function() {
 
         it('throws InvalidArgumentException when resolved class is abstract or interface', function() {
             $di = new Registry;
-            $di->offsetSet(Engine::class, function($c, $make) {
+            $di->offsetSet(Engine::class, function(callable $make) {
                 return $make(Engine::class);
             });
             $di->offsetSet(Car::class, Car::class);
