@@ -532,54 +532,43 @@ describe('Registry', function() {
 
     describe('make', function() {
         it('creates a concrete class without constructor', function() {
-            $di = new Registry;
-            $di->offsetSet(V8::class, V8::class);
-
-            expect($di->offsetGet(V8::class))->toBeAnInstanceOf(V8::class);
+            expect((new Registry)->make(V8::class))->toBeAnInstanceOf(V8::class);
         });
 
         it('creates a concrete class with given arguments from position', function() {
             $di = new Registry;
-            $di->offsetSet(V8::class, V8::class);
+            $v8 = $di->make(V8::class);
 
-            $v8 = $di->offsetGet(V8::class);
-
-            $di->offsetSet(W16::class, [$v8, $v8]);
-
-            expect($di->offsetGet(W16::class))->toBeAnInstanceOf(W16::class);
+            expect($di->make(W16::class, [$v8, $v8]))->toBeAnInstanceOf(W16::class);
         });
 
         it('creates a concrete class by resolving given arguments from position', function() {
             $di = new Registry;
             $di->offsetSet(V8::class, V8::class);
-            $di->offsetSet(W16::class, [V8::class, V8::class]);
 
-            expect($di->offsetGet(W16::class))->toBeAnInstanceOf(W16::class);
+            expect($di->make(W16::class, [V8::class, V8::class]))->toBeAnInstanceOf(W16::class);
         });
 
         it('creates a concrete class with given arguments from name', function() {
-            $v8 = new V8;
             $di = new Registry;
-            $di->offsetSet(W16::class, ['left' => $v8, 'right' => $v8]);
+            $v8 = new V8;
 
-            expect($di->offsetGet(W16::class))->toBeAnInstanceOf(W16::class);
+            expect($di->make(W16::class, ['left' => $v8, 'right' => $v8]))->toBeAnInstanceOf(W16::class);
         });
 
         it('creates a concrete class resolving dependency by class in the argument', function() {
             $di = new Registry;
             $di->offsetSet(V8::class, V8::class);
-            $di->offsetSet(W16::class, ['left' => V8::class, 'right' => V8::class]);
 
-            expect($di->offsetGet(W16::class))->toBeAnInstanceOf(W16::class);
+            expect($di->make(W16::class, ['left' => V8::class, 'right' => V8::class]))->toBeAnInstanceOf(W16::class);
         });
 
         it('creates a concrete class resolving dependency by param in the argument prefixed with dollar sign', function() {
             $di = new Registry;
             $di->offsetSet(Engine::class, V8::class);
-            $di->offsetSet(Car::class, ['color' => '$color']);
             $di->offsetSet('color', 'blue');
 
-            expect($di->offsetGet(Car::class)->color)->toBe('blue');
+            expect($di->make(Car::class, ['color' => '$color'])->color)->toBe('blue');
         });
 
         it('creates a concrete class with delegate lookup the parameter type hint', function() {
@@ -587,7 +576,7 @@ describe('Registry', function() {
             $di->offsetSet(Engine::class, V8::class);
             $di->offsetSet(W16::class, W16::class);
 
-            expect($di->offsetGet(W16::class))->toBeAnInstanceOf(W16::class);
+            expect($di->make(W16::class))->toBeAnInstanceOf(W16::class);
         });
 
         // require pdo-sqlite
@@ -596,7 +585,7 @@ describe('Registry', function() {
             $di->offsetSet(PDO::class, ['sqlite://:memory:']);
 
             allow(PDO::class)->toBeOk();
-            expect($di->offsetGet(PDO::class))->toBeAnInstanceOf(PDO::class);
+            expect($di->make(PDO::class))->toBeAnInstanceOf(PDO::class);
         });
 
         it('creates a concrete class with the parameter default value', function() {
@@ -604,7 +593,7 @@ describe('Registry', function() {
             $di->offsetSet(Engine::class, V8::class);
             $di->offsetSet(Car::class, Car::class);
 
-            $car = $di->offsetGet(Car::class);
+            $car = $di->make(Car::class);
 
             expect($car)->toBeAnInstanceOf(Car::class);
             expect($car->color)->toBe('red');
@@ -617,7 +606,7 @@ describe('Registry', function() {
             });
 
             expect(function() use($di) {
-                $di->offsetGet(Engine::class);
+                $di->make(Engine::class);
             })
             ->toThrow(new InvalidArgumentException('Target [Engine] cannot be construct'));
         });
@@ -630,7 +619,7 @@ describe('Registry', function() {
             $di->offsetSet(Car::class, Car::class);
 
             expect(function() use($di) {
-                $di->offsetGet(Car::class);
+                $di->make(Car::class);
             })
             ->toThrow(new InvalidArgumentException('Target [Engine] cannot be construct while [Car]'));
         });
@@ -641,7 +630,7 @@ describe('Registry', function() {
             $di->offsetSet(W16::class, W16::class);
 
             expect(function() use($di) {
-                $di->offsetGet(W16::class);
+                $di->make(W16::class);
             })
             ->toThrow(new RuntimeException('Cyclic dependency detected for [W16]'));
         });
@@ -651,7 +640,7 @@ describe('Registry', function() {
             $di->offsetSet(Car::class, Car::class);
 
             expect(function() use($di) {
-                $di->offsetGet(Car::class);
+                $di->make(Car::class);
             })
             ->toThrow(new LogicException('Parameter [engine] not found for [Car]'));
         });

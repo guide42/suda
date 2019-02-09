@@ -182,7 +182,7 @@ class Registry implements \ArrayAccess
         return $return;
     }
 
-    private function make(string $class, array $args=[]) {
+    function make(string $class, array $args=[]) {
         $reflection = ($this->refl)($class);
 
         if (!$reflection->isInstantiable()) {
