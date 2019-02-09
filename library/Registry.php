@@ -48,13 +48,13 @@ class Registry implements \ArrayAccess
         }
 
         if (interface_exists($key, false) || class_exists($key, false)) {
-            // $this[Car::class] = [V8::class];
             if (is_array($value)) {
+                // $this[Car::class] = [V8::class];
                 $value = function(self $self, callable $make) use($key, $value) {
                     return $make($key, $value);
                 };
-            // $this[Engine::class] = V8::class;
             } elseif (is_string($value) && class_exists($value, false)) {
+                // $this[Engine::class] = V8::class;
                 $value = function(self $self, callable $make) use($value) {
                     return $make($value);
                 };
