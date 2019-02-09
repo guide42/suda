@@ -46,6 +46,23 @@ describe('Registry', function() {
 
             expect($di->offsetGet(Car::class))->toBeAnInstanceOf(Car::class);
         });
+
+        it('accepts a reflection creator function', function() {
+            $di = new Registry(
+                [Engine::class => V8::class],
+                null,
+                function($class, string $method=null) {
+                    if ($method === null) {
+                        expect($class)->toBe('V8');
+                        return new ReflectionClass('V8');
+                    }
+                    expect($class)->toBeAnInstanceOf(V8::class);
+                    expect($method)->toBe('__invoke');
+                    return new ReflectionMethod($class, '__invoke');
+                }
+            );
+            expect($di('Engine::__invoke', ['prefix' => 'Hello ']))->toBe('Hello World');
+        });
     });
 
     describe('freeze', function() {
