@@ -435,7 +435,7 @@ describe('Registry', function() {
             expect($v8)->toBeAnInstanceOf(V8::class);
         });
 
-        it('calls callable resolving parameters from it\'s own', function() {
+        it('calls callable resolving parameters from delegate', function() {
             $v80 = new V8;
             $v81 = new V8;
 
@@ -445,8 +445,8 @@ describe('Registry', function() {
             $di = new Registry([], $delegate);
             $di[Car::class] = [$v81];
 
-            $di(function(Car $car) use($v81) {
-                expect($car->engine)->toBe($v81);
+            $di(function(Car $car) use($v80) {
+                expect($car->engine)->toBe($v80);
             });
         });
 
@@ -472,7 +472,7 @@ describe('Registry', function() {
             expect($di->__invoke($fn, ['$color']))->toBe('blue');
         });
 
-        it('calls callable resolving arguments not from delegate', function() {
+        it('calls callable resolving arguments from delegate', function() {
             $delegate = new Registry;
             $delegate->offsetSet('color', 'green');
 
@@ -483,7 +483,7 @@ describe('Registry', function() {
                 return $c;
             };
 
-            expect($di->__invoke($fn, ['$color']))->toBe('blue');
+            expect($di->__invoke($fn, ['$color']))->toBe('green');
         });
 
         it('throws InvalidArgumentException when target is not callable', function() {

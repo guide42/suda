@@ -1,5 +1,7 @@
 ## CHANGES
 
+ - [BC-BREAK] Now `Registry::__invoke` will resolve context from delegate.
+
 ### 0.15.0
 
  - Constructor now accepts a 3rd parameter for the reflection cache callable.

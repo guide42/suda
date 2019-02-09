@@ -174,7 +174,7 @@ class Registry implements \ArrayAccess
             throw new \InvalidArgumentException('Target must be a callable');
         }
 
-        $context = $this->buildContext($this, $reflection->getParameters(), $args);
+        $context = $this->buildContext($this->delegate, $reflection->getParameters(), $args);
         $return = $reflection->invokeArgs($instance, $context);
 
         return $return;
