@@ -1,5 +1,7 @@
 ## CHANGES
 
+### 0.16.0
+
  - [BC-BREAK] Now `Registry::__invoke` will resolve context from delegate.
  - [BC-BREAK] Resolves parameters for factories again.
    The first parameter must be `callable $make` and then the dependencies.
