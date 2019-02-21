@@ -3,7 +3,9 @@
  - [BC-BREAK] Now `Registry::__invoke` will resolve context from delegate.
  - [BC-BREAK] Resolves parameters for factories again.
    The first parameter must be `callable $make` and then the dependencies.
+ - [BC-BREAK] Now `$make` and `Registry::make` throws `CyclicDependency`.
  - Old `make` function is public again, now with cache implemented.
+ - [BC-BREAK] New exceptions replaces `RuntimeException`: set and unset throws `Frozen` and get throws `NotFound`.
 
 ### 0.15.0
 

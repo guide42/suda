@@ -57,7 +57,7 @@ class Registry implements \ArrayAccess
         }
 
         if ($this->frozen === true || isset($this->frozen[$key])) {
-            throw new \RuntimeException("Entry [$key] is frozen");
+            throw new Frozen($key);
         }
 
         if (interface_exists($key, false) || class_exists($key, false)) {
@@ -134,7 +134,7 @@ class Registry implements \ArrayAccess
             return $this->values[$key] = $service;
         }
 
-        throw new \RuntimeException("Entry [$key] not found");
+        throw new NotFound($key);
     }
 
     /** Returns true if key exists in registry, false otherwise. */
@@ -148,7 +148,7 @@ class Registry implements \ArrayAccess
     /** Remove a key from the registry. */
     function offsetUnset($key): void {
         if ($this->frozen === true) {
-            throw new \RuntimeException('Registry is frozen');
+            throw new Frozen;
         }
         if (is_string($key)) {
             unset($this->keys[$key], $this->frozen[$key], $this->values[$key], $this->factories[$key]);
@@ -202,7 +202,7 @@ class Registry implements \ArrayAccess
         }
 
         if (isset($this->loading[$class])) {
-            throw new \RuntimeException("Cyclic dependency detected for [$class]");
+            throw new CyclicDependency($class);
         }
 
         $this->loading[$class] = count($this->loading);

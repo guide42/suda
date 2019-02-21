@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-use suda\Registry;
+use suda\{Registry, NotFound, Frozen, CyclicDependency};
 
 interface Engine {}
 
@@ -86,7 +86,7 @@ describe('Registry', function() {
                     return new W16(new V8, new V8);
                 };
             })
-            ->toThrow(new RuntimeException('Entry [Engine] is frozen'));
+            ->toThrow(new Frozen('Engine'));
         });
 
         it('freeze all entries', function() {
@@ -98,7 +98,7 @@ describe('Registry', function() {
                     return new W16(new V8, new V8);
                 };
             })
-            ->toThrow(new RuntimeException('Entry [Engine] is frozen'));
+            ->toThrow(new Frozen('Engine'));
         });
 
         it('does nothing after it has been frozen', function() {
@@ -109,7 +109,7 @@ describe('Registry', function() {
             expect(function() use($di) {
                 unset($di['foo']);
             })
-            ->toThrow(new RuntimeException('Registry is frozen'));
+            ->toThrow(new Frozen);
 
             $di->freeze();
         });
@@ -223,7 +223,7 @@ describe('Registry', function() {
             ->toThrow(new InvalidArgumentException('Service factory must be callable'));
         });
 
-        it('throws RuntimeException when entry is frozen', function() {
+        it('throws Frozen when entry is frozen', function() {
             $di = new Registry([Engine::class => V8::class]);
             $v8 = $di->offsetGet(Engine::class);
 
@@ -234,7 +234,7 @@ describe('Registry', function() {
                     return new W16(new V8, new V8);
                 });
             })
-            ->toThrow(new RuntimeException('Entry [Engine] is frozen'));
+            ->toThrow(new Frozen('Engine'));
         });
 
         it('throws TypeError when key is not string', function() {
@@ -331,13 +331,13 @@ describe('Registry', function() {
             ->toThrow(new LogicException('Service factory must return an instance of [Engine]'));
         });
 
-        it('throws RuntimeException when entry not found', function() {
+        it('throws NotFound when entry not found', function() {
             $di = new Registry;
 
             expect(function() use($di) {
                 $di->offsetGet('not_found');
             })
-            ->toThrow(new RuntimeException('Entry [not_found] not found'));
+            ->toThrow(new NotFound('not_found'));
         });
 
         it('throw TypeError when key is not string', function() {
@@ -376,14 +376,14 @@ describe('Registry', function() {
     });
 
     describe('offsetUnset', function() {
-        it('throws RuntimeException when Registry is frozen', function() {
+        it('throws Frozen when Registry is frozen', function() {
             $di = new Registry;
             $di->freeze();
 
             expect(function() use($di) {
                 unset($di['foo']);
             })
-            ->toThrow(new RuntimeException('Registry is frozen'));
+            ->toThrow(new Frozen);
         });
 
         it('removes a parameter/factory', function() {
@@ -624,7 +624,7 @@ describe('Registry', function() {
             ->toThrow(new InvalidArgumentException('Target [Engine] cannot be construct while [Car]'));
         });
 
-        it('throws RuntimeException when a cyclic dependency is detected', function() {
+        it('throws CyclicDependency when a cyclic dependency is detected', function() {
             $di = new Registry;
             $di->offsetSet(Engine::class, W16::class);
             $di->offsetSet(W16::class, W16::class);
@@ -632,7 +632,7 @@ describe('Registry', function() {
             expect(function() use($di) {
                 $di->make(W16::class);
             })
-            ->toThrow(new RuntimeException('Cyclic dependency detected for [W16]'));
+            ->toThrow(new CyclicDependency('W16'));
         });
 
         it('throws LogicException when a parameter is not found', function() {
