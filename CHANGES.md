@@ -1,5 +1,9 @@
 ## CHANGES
 
+### 0.17.0
+
+- On `__invoke`, make class when string is not found in the registry.
+
 ### 0.16.0
 
  - [BC-BREAK] Now `Registry::__invoke` will resolve context from delegate.

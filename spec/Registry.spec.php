@@ -419,6 +419,10 @@ describe('Registry', function() {
             expect((new Registry)->__invoke(new V8, ['prefix' => '']))->toBe('World');
         });
 
+        it('calls callable when class that is not in container and has __invoke method is given', function() {
+            expect((new Registry)->__invoke(V8::class, ['prefix' => '']))->toBe('World');
+        });
+
         it('calls callable when class that is in container and has __invoke method is given', function() {
             $di = new Registry;
             $di->offsetSet(Engine::class, V8::class);

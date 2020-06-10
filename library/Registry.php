@@ -159,27 +159,31 @@ class Registry implements \ArrayAccess
     function __invoke($fn, array $args=[]) {
         if (is_string($fn)) {
             if (strpos($fn, '::') !== false) {
-                list($class, $method) = explode('::', $fn, 2);
-                $instance = $this->offsetGet($class);
-                $reflection = ($this->refl)($instance, $method);
-            } else {
-                $instance = $this->offsetGet($fn);
-                $reflection = ($this->refl)($instance, '__invoke');
+                list($fn, $method) = explode('::', $fn, 2);
             }
-        } elseif (method_exists($fn, '__invoke')) {
-            $instance = $fn;
-            $reflection = ($this->refl)($instance, '__invoke');
+            if ($this->offsetExists($fn)) {
+                $instance = $this->offsetGet($fn);
+            }
         } elseif (is_array($fn) && isset($fn[0], $fn[1]) && count($fn) === 2) {
             $instance = is_string($fn[0]) ? $this->offsetGet($fn[0]) : $fn[0];
-            $reflection = ($this->refl)($instance, $fn[1]);
-        } else {
+            $method = $fn[1];
+        }
+
+        $instance = $instance ?? $fn;
+        $method = $method ?? '__invoke';
+
+        if (!method_exists($instance, $method)) {
             throw new \InvalidArgumentException('Target must be a callable');
         }
 
+        $reflection = ($this->refl)($instance, $method);
         $context = $this->buildContext($this->delegate, $reflection->getParameters(), $args);
-        $return = $reflection->invokeArgs($instance, $context);
 
-        return $return;
+        if (is_string($instance)) {
+            $instance = $this->make($instance);
+        }
+
+        return $reflection->invokeArgs($instance, $context);
     }
 
     function make(string $class, array $args=[]) {
