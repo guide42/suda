@@ -152,34 +152,6 @@ describe('Registry', function() {
             expect($di->offsetGet(Car::class))->toBeAnInstanceOf(Car::class);
         });
 
-        it('assigns parameters for key concrete class', function() {
-            $di = new Registry;
-            $di->offsetSet(Engine::class, function(callable $make) {
-                return $make(V8::class);
-            });
-            $di->offsetSet(Car::class, ['color' => 'blue']);
-
-            expect($di->offsetGet(Car::class)->color)->toBe('blue');
-        });
-
-        it('assigns parameters for key concrete class that are resolver from delegate', function() {
-            $di = new Registry;
-            $di->offsetSet('color', 'blue');
-            $di->offsetSet(Engine::class, function(callable $make) {
-                return $make(V8::class);
-            });
-            $di->offsetSet(Car::class, ['color' => '$color']);
-
-            expect($di->offsetGet(Car::class)->color)->toBe('blue');
-        });
-
-        it('assigns concrete classes as aliases', function() {
-            $di = new Registry;
-            $di->offsetSet(Engine::class, V8::class);
-
-            expect($di->offsetGet(Engine::class))->toBeAnInstanceOf(V8::class);
-        });
-
         it('assigns stacked factories, next is make function called without arguments', function() {
             $v8 = null;
             $count = 0;

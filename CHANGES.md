@@ -7,6 +7,7 @@
 - [BC-BREAK] Now `InvalidArgumentException` is thrown when trying to reflect an interface.
 - Now can assign `{class}${param_name}` to resolve arguments by class and name together.
 - Add factories `ref`, `build`, `alias` and `automake`.
+- [BC-BREAK] Remove shortcuts to create build a concrete and with arguments.
 
 ### 0.16.0
 

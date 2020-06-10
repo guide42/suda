@@ -70,18 +70,6 @@ class Registry implements \ArrayAccess
         $class = ($dollar = strpos($key, '$')) > 0 ? substr($key, 0, $dollar) : $key;
 
         if (interface_exists($class, false) || class_exists($class, false)) {
-            if (is_array($value)) {
-                // $this[Car::class] = [V8::class];
-                $value = function(callable $make) use($class, $value) {
-                    return $make($class, $value);
-                };
-            } elseif (is_string($value) && class_exists($value, false)) {
-                // $this[Engine::class] = V8::class;
-                $value = function(callable $make) use($value) {
-                    return $make($value);
-                };
-            }
-
             if (!method_exists($value, '__invoke')) {
                 throw new \InvalidArgumentException('Service factory must be callable');
             }

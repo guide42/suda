@@ -12,8 +12,6 @@ $di = new Registry(array $values);                     // ... with assoc-array c
 $di = new Registry(array $values, Registry $delegate); // ... with registry to delegate dependencies
 
 $di[string $classOrInterface] = callable $factory;     // stores a factory for abstract
-$di[string $classOrInterface] = string $concreteClass; // ... that will make $concreteClass for $classOrInterface
-$di[string $classOrInterface] = array $arguments;      // ... that will make $classOrInterface with given $arguments
 
 $di[string $key] = mixed $value;                       // stores a parameter
 $di[string $class . "$" . string $key] = mixed $value; // ... of an specific class
