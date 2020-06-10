@@ -16,6 +16,7 @@ $di[string $classOrInterface] = string $concreteClass; // ... that will make $co
 $di[string $classOrInterface] = array $arguments;      // ... that will make $classOrInterface with given $arguments
 
 $di[string $key] = mixed $value;                       // stores a parameter
+$di[string $class . "$" . string $key] = mixed $value; // ... of an specific class
 
 $di(callable $fn);                                     // call a function resolving it's parameters
 $di(callable $fn, array $arguments);                   // ... with given arguments

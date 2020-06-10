@@ -66,11 +66,14 @@ class Registry implements \ArrayAccess
             throw new Frozen($key);
         }
 
-        if (interface_exists($key, false) || class_exists($key, false)) {
+        // $this[Engine::class . '$v8'] = V8::class;
+        $class = ($dollar = strpos($key, '$')) > 0 ? substr($key, 0, $dollar) : $key;
+
+        if (interface_exists($class, false) || class_exists($class, false)) {
             if (is_array($value)) {
                 // $this[Car::class] = [V8::class];
-                $value = function(callable $make) use($key, $value) {
-                    return $make($key, $value);
+                $value = function(callable $make) use($class, $value) {
+                    return $make($class, $value);
                 };
             } elseif (is_string($value) && class_exists($value, false)) {
                 // $this[Engine::class] = V8::class;
@@ -122,19 +125,22 @@ class Registry implements \ArrayAccess
         }
 
         if (isset($this->factories[$key])) {
+            // $this[Engine::class . '$v8'] = V8::class;
+            $class = ($dollar = strpos($key, '$')) > 0 ? substr($key, 0, $dollar) : $key;
+
             $service = $this->__invoke($this->factories[$key], [
-                function(string $dep=null, array $args=[]) use($key) {
-                    // $dep should be a concrete class or null
-                    // $key could be abstract or interface
+                function(string $dep=null, array $args=[]) use($class) {
+                    // $class should be a concrete class or null
+                    // $dep could be abstract or interface
                     if (is_null($dep) && empty($args)) {
-                        return $this->make($key);
+                        return $this->make($class);
                     }
                     return $this->make($dep, $args);
                 },
             ]);
 
-            if (!$service instanceof $key) {
-                throw new \LogicException("Service factory must return an instance of [$key]");
+            if (!$service instanceof $class) {
+                throw new \LogicException("Service factory must return an instance of [$class]");
             }
 
             return $this->values[$key] = $service;
@@ -242,6 +248,8 @@ class Registry implements \ArrayAccess
                 $context[$index] = $this->resolve($self, $args[$param->getPosition()]);
             } elseif (isset($args[$name])) {
                 $context[$index] = $this->resolve($self, $args[$name]);
+            } elseif ($param->hasType() && !$param->getType()->isBuiltin() && $self->offsetExists(strval($param->getType()) . '$' . $name)) {
+                $context[$index] = $self->offsetGet(strval($param->getType()) . '$' . $name);
             } elseif ($param->hasType() && !$param->getType()->isBuiltin() && $self->offsetExists(strval($param->getType()))) {
                 $context[$index] = $self->offsetGet(strval($param->getType()));
             } elseif ($param->isDefaultValueAvailable()) {

@@ -459,6 +459,17 @@ describe('Registry', function() {
             expect($di->__invoke('my_func', [42]))->toBe(42);
         });
 
+        it('calls callable resolving parameters by class and name', function() {
+            $di = new Registry;
+            $di->offsetSet(Engine::class . '$v8', V8::class);
+
+            $v8 = $di->__invoke(function(Engine $v8) {
+                return $v8;
+            });
+
+            expect($v8)->toBeAnInstanceOf(V8::class);
+        });
+
         it('calls callable resolving parameters by type hint', function() {
             $di = new Registry;
             $di->offsetSet(V8::class, V8::class);
