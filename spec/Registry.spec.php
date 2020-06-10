@@ -15,14 +15,28 @@ describe('Registry', function() {
         });
 
         it('accepts a delegate', function() {
-            $di = new Registry([Car::class => Car::class],
-                new Registry([Engine::class => V8::class]));
+            $di = new Registry([
+                    Car::class => function(callable $make) {
+                        return $make();
+                    },
+                ],
+                new Registry([
+                    Engine::class => function(callable $make) {
+                        return $make(V8::class);
+                    },
+                ])
+            );
 
             expect($di->offsetGet(Car::class))->toBeAnInstanceOf(Car::class);
         });
 
         it('accepts a reflection creator function', function() {
-            $di = new Registry([Engine::class => V8::class], null,
+            $di = new Registry([
+                    Engine::class => function(callable $make) {
+                        return $make(V8::class);
+                    },
+                ],
+                null,
                 function($class, string $method=null) {
                     static $first = false;
                     if ($method === null) {
@@ -52,7 +66,11 @@ describe('Registry', function() {
 
     describe('freeze', function() {
         it('freeze a entry', function() {
-            $di = new Registry([Engine::class => V8::class]);
+            $di = new Registry([
+                Engine::class => function(callable $make) {
+                    return $make(V8::class);
+                },
+            ]);
             $di->freeze(Engine::class);
 
             expect(function() use($di) {
@@ -64,7 +82,11 @@ describe('Registry', function() {
         });
 
         it('freeze all entries', function() {
-            $di = new Registry([Engine::class => V8::class]);
+            $di = new Registry([
+                Engine::class => function(callable $make) {
+                    return $make(V8::class);
+                },
+            ]);
             $di->freeze();
 
             expect(function() use($di) {
@@ -132,7 +154,9 @@ describe('Registry', function() {
 
         it('assigns parameters for key concrete class', function() {
             $di = new Registry;
-            $di->offsetSet(Engine::class, V8::class);
+            $di->offsetSet(Engine::class, function(callable $make) {
+                return $make(V8::class);
+            });
             $di->offsetSet(Car::class, ['color' => 'blue']);
 
             expect($di->offsetGet(Car::class)->color)->toBe('blue');
@@ -141,7 +165,9 @@ describe('Registry', function() {
         it('assigns parameters for key concrete class that are resolver from delegate', function() {
             $di = new Registry;
             $di->offsetSet('color', 'blue');
-            $di->offsetSet(Engine::class, V8::class);
+            $di->offsetSet(Engine::class, function(callable $make) {
+                return $make(V8::class);
+            });
             $di->offsetSet(Car::class, ['color' => '$color']);
 
             expect($di->offsetGet(Car::class)->color)->toBe('blue');
@@ -180,7 +206,9 @@ describe('Registry', function() {
 
         it('assigns last factory', function() {
             $di = new Registry;
-            $di->offsetSet(Engine::class, V8::class);
+            $di->offsetSet(Engine::class, function(callable $make) {
+                return $make(V8::class);
+            });
             $di->offsetSet(Engine::class, function() {
                 return new W16(new V8, new V8);
             });
@@ -198,7 +226,12 @@ describe('Registry', function() {
         });
 
         it('throws Frozen when entry is frozen', function() {
-            $di = new Registry([Engine::class => V8::class]);
+            $di = new Registry([
+                Engine::class => function(callable $make) {
+                    return $make(V8::class);
+                },
+            ]);
+
             $v8 = $di->offsetGet(Engine::class);
 
             expect($v8)->toBeAnInstanceOf(V8::class);
@@ -272,7 +305,9 @@ describe('Registry', function() {
 
         it('calls factory with make function that creates an instance and resolve it\'s parameters from deleagte', function() {
             $delegate = new Registry;
-            $delegate->offsetSet(Engine::class, V8::class);
+            $delegate->offsetSet(Engine::class, function(callable $make) {
+                return $make(V8::class);
+            });
 
             $di = new Registry([], $delegate);
             $di->offsetSet(Engine::class, function(callable $make) {
@@ -334,7 +369,9 @@ describe('Registry', function() {
 
         it('returns true if factory exists', function() {
             $di = new Registry;
-            $di->offsetSet(Engine::class, V8::class);
+            $di->offsetSet(Engine::class, function(callable $make) {
+                return $make(V8::class);
+            });
 
             expect($di->offsetExists(Engine::class))->toBe(true);
             expect($di->offsetExists(V8::class))->toBe(false);
@@ -363,7 +400,9 @@ describe('Registry', function() {
         it('removes a parameter/factory', function() {
             $di = new Registry;
             $di->offsetSet('param', 'value');
-            $di->offsetSet(Engine::class, V8::class);
+            $di->offsetSet(Engine::class, function(callable $make) {
+                return $make(V8::class);
+            });
 
             expect($di->offsetExists('param'))->toBe(true);
             expect($di->offsetExists(Engine::class))->toBe(true);
@@ -399,14 +438,18 @@ describe('Registry', function() {
 
         it('calls callable when class that is in container and has __invoke method is given', function() {
             $di = new Registry;
-            $di->offsetSet(Engine::class, V8::class);
+            $di->offsetSet(Engine::class, function(callable $make) {
+                return $make(V8::class);
+            });
 
             expect($di->__invoke(Engine::class))->toBe('World');
         });
 
         it('calls callable when class that is in container and method split by :: is given', function() {
             $di = new Registry;
-            $di->offsetSet(Engine::class, V8::class);
+            $di->offsetSet(Engine::class, function(callable $make) {
+                return $make(V8::class);
+            });
 
             expect($di->__invoke(Engine::class . '::__invoke'))->toBe('World');
         });
@@ -417,7 +460,9 @@ describe('Registry', function() {
 
         it('calls callable when array of class that is in container and method is given', function() {
             $di = new Registry;
-            $di->offsetSet(Engine::class, V8::class);
+            $di->offsetSet(Engine::class, function(callable $make) {
+                return $make(V8::class);
+            });
 
             expect($di->__invoke([Engine::class, '__invoke']))->toBe('World');
         });
@@ -433,7 +478,9 @@ describe('Registry', function() {
 
         it('calls callable resolving parameters by class and name', function() {
             $di = new Registry;
-            $di->offsetSet(Engine::class . '$v8', V8::class);
+            $di->offsetSet(Engine::class . '$v8', function(callable $make) {
+                return $make(V8::class);
+            });
 
             $v8 = $di->__invoke(function(Engine $v8) {
                 return $v8;
@@ -444,7 +491,9 @@ describe('Registry', function() {
 
         it('calls callable resolving parameters by type hint', function() {
             $di = new Registry;
-            $di->offsetSet(V8::class, V8::class);
+            $di->offsetSet(V8::class, function(callable $make) {
+                return $make();
+            });
 
             $v8 = $di->__invoke(function(V8 $v8) {
                 return $v8;
@@ -458,10 +507,14 @@ describe('Registry', function() {
             $v81 = new V8;
 
             $delegate = new Registry;
-            $delegate[Car::class] = [$v80];
+            $delegate[Car::class] = function(callable $make) use($v80) {
+                return $make(Car::class, [$v80]);
+            };
 
             $di = new Registry([], $delegate);
-            $di[Car::class] = [$v81];
+            $di[Car::class] = function(callable $make) use($v81) {
+                return $make(Car::class, [$v81]);
+            };
 
             $di(function(Car $car) use($v80) {
                 expect($car->engine)->toBe($v80);
@@ -470,7 +523,9 @@ describe('Registry', function() {
 
         it('calls callable resolving arguments by type hint', function() {
             $di = new Registry;
-            $di->offsetSet(V8::class, V8::class);
+            $di->offsetSet(V8::class, function(callable $make) {
+                return $make();
+            });
 
             $fn = function($v8) {
                 return $v8;
@@ -533,7 +588,9 @@ describe('Registry', function() {
 
         it('creates a concrete class by resolving given arguments from position', function() {
             $di = new Registry;
-            $di->offsetSet(V8::class, V8::class);
+            $di->offsetSet(V8::class, function(callable $make) {
+                return $make();
+            });
 
             expect($di->make(W16::class, [V8::class, V8::class]))->toBeAnInstanceOf(W16::class);
         });
@@ -547,14 +604,18 @@ describe('Registry', function() {
 
         it('creates a concrete class resolving dependency by class in the argument', function() {
             $di = new Registry;
-            $di->offsetSet(V8::class, V8::class);
+            $di->offsetSet(V8::class, function(callable $make) {
+                return $make();
+            });
 
             expect($di->make(W16::class, ['left' => V8::class, 'right' => V8::class]))->toBeAnInstanceOf(W16::class);
         });
 
         it('creates a concrete class resolving dependency by param in the argument prefixed with dollar sign', function() {
             $di = new Registry;
-            $di->offsetSet(Engine::class, V8::class);
+            $di->offsetSet(Engine::class, function(callable $make) {
+                return $make(V8::class);
+            });
             $di->offsetSet('color', 'blue');
 
             expect($di->make(Car::class, ['color' => '$color'])->color)->toBe('blue');
@@ -562,8 +623,12 @@ describe('Registry', function() {
 
         it('creates a concrete class with delegate lookup the parameter type hint', function() {
             $di = new Registry;
-            $di->offsetSet(Engine::class, V8::class);
-            $di->offsetSet(W16::class, W16::class);
+            $di->offsetSet(Engine::class, function(callable $make) {
+                return $make(V8::class);
+            });
+            $di->offsetSet(W16::class, function(callable $make) {
+                return $make();
+            });
 
             expect($di->make(W16::class))->toBeAnInstanceOf(W16::class);
         });
@@ -579,8 +644,12 @@ describe('Registry', function() {
 
         it('creates a concrete class with the parameter default value', function() {
             $di = new Registry;
-            $di->offsetSet(Engine::class, V8::class);
-            $di->offsetSet(Car::class, Car::class);
+            $di->offsetSet(Engine::class, function(callable $make) {
+                return $make(V8::class);
+            });
+            $di->offsetSet(Car::class, function(callable $make) {
+                return $make();
+            });
 
             $car = $di->make(Car::class);
 
@@ -617,7 +686,9 @@ describe('Registry', function() {
             $di->offsetSet(Engine::class, function(callable $make) {
                 return $make(BaseEngine::class);
             });
-            $di->offsetSet(Car::class, Car::class);
+            $di->offsetSet(Car::class, function(callable $make) {
+                return $make();
+            });
 
             expect(function() use($di) {
                 $di->make(Car::class);
@@ -627,8 +698,12 @@ describe('Registry', function() {
 
         it('throws CyclicDependency when a cyclic dependency is detected', function() {
             $di = new Registry;
-            $di->offsetSet(Engine::class, W16::class);
-            $di->offsetSet(W16::class, W16::class);
+            $di->offsetSet(Engine::class, function(callable $make) {
+                return $make(W16::class);
+            });
+            $di->offsetSet(W16::class, function(callable $make) {
+                return $make();
+            });
 
             expect(function() use($di) {
                 $di->make(W16::class);
@@ -638,7 +713,9 @@ describe('Registry', function() {
 
         it('throws LogicException when a parameter is not found', function() {
             $di = new Registry;
-            $di->offsetSet(Car::class, Car::class);
+            $di->offsetSet(Car::class, function(callable $make) {
+                return $make();
+            });
 
             expect(function() use($di) {
                 $di->make(Car::class);
