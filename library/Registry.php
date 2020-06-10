@@ -231,9 +231,9 @@ class Registry implements \ArrayAccess
             $class = $param->hasType() && !$param->getType()->isBuiltin() && $param->getClass() ? $param->getClass()->getName() : null;
 
             if (isset($args[$pos])) {
-                $context[$index] = $this->resolve($self, $args[$pos]);
+                $context[$index] = $args[$pos];
             } elseif (isset($args[$name])) {
-                $context[$index] = $this->resolve($self, $args[$name]);
+                $context[$index] = $args[$name];
             } elseif ($class && $self->offsetExists($class . '$' . $name)) {
                 $context[$index] = $self->offsetGet($class . '$' . $name);
             } elseif ($class && $self->offsetExists($class)) {
@@ -253,17 +253,5 @@ class Registry implements \ArrayAccess
         }
 
         return $context;
-    }
-
-    private function resolve(self $self, $value) {
-        if (is_string($value)) {
-            if (strncmp($value, '$', 1) === 0) {
-                return $self->offsetGet(substr($value, 1));
-            }
-            if (interface_exists($value, false) || class_exists($value, false)) {
-                return $self->offsetGet($value);
-            }
-        }
-        return $value;
     }
 }

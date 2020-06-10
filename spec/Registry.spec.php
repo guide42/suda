@@ -256,25 +256,6 @@ describe('Registry', function() {
             $di->offsetGet(Engine::class);
         });
 
-        it('calls factory with make function that creates an instance with dependencies from deleagte', function() {
-            $delegate = new Registry;
-            $delegate->offsetSet('leftEngine', new V8);
-            $delegate->offsetSet('rightEngine', new V8);
-
-            $di = new Registry([], $delegate);
-            $di->offsetSet('leftEngine', new W16(new V8, new V8));
-            $di->offsetSet('rightEngine', new W16(new V8, new V8));
-            $di->offsetSet(Engine::class, function(callable $make) {
-                return $make(W16::class, [
-                    'left' => '$leftEngine',
-                    'right' => '$rightEngine',
-                ]);
-            });
-
-            expect($di->offsetGet(Engine::class))->toBeAnInstanceOf(W16::class);
-            expect($di->offsetGet(Engine::class)->left)->toBeAnInstanceOf(V8::class);
-        });
-
         it('calls factory with make function that creates an instance and resolve it\'s parameters from deleagte', function() {
             $delegate = new Registry;
             $delegate->offsetSet(Engine::class, function(callable $make) {
@@ -493,44 +474,6 @@ describe('Registry', function() {
             });
         });
 
-        it('calls callable resolving arguments by type hint', function() {
-            $di = new Registry;
-            $di->offsetSet(V8::class, function(callable $make) {
-                return $make();
-            });
-
-            $fn = function($v8) {
-                return $v8;
-            };
-
-            expect($di->__invoke($fn, [V8::class]))->toBeAnInstanceOf(V8::class);
-        });
-
-        it('calls callable resolving arguments prefixed with dollar sign', function() {
-            $di = new Registry;
-            $di->offsetSet('color', 'blue');
-
-            $fn = function($c) {
-                return $c;
-            };
-
-            expect($di->__invoke($fn, ['$color']))->toBe('blue');
-        });
-
-        it('calls callable resolving arguments from delegate', function() {
-            $delegate = new Registry;
-            $delegate->offsetSet('color', 'green');
-
-            $di = new Registry([], $delegate);
-            $di->offsetSet('color', 'blue');
-
-            $fn = function($c) {
-                return $c;
-            };
-
-            expect($di->__invoke($fn, ['$color']))->toBe('green');
-        });
-
         it('throws InvalidArgumentException when target is not callable', function() {
             expect(function() {
                 (new Registry)->__invoke(new stdClass);
@@ -563,41 +506,6 @@ describe('Registry', function() {
             $v8 = new V8;
 
             expect($di->make(W16::class, ['left' => $v8, 'right' => $v8]))->toBeAnInstanceOf(W16::class);
-        });
-
-        it('creates a concrete class by resolving given arguments from position', function() {
-            $di = new Registry;
-            $di->offsetSet(V8::class, function(callable $make) {
-                return $make();
-            });
-
-            expect($di->make(W16::class, [V8::class, V8::class]))->toBeAnInstanceOf(W16::class);
-        });
-
-        it('creates a concrete class with given arguments from name', function() {
-            $di = new Registry;
-            $v8 = new V8;
-
-            expect($di->make(W16::class, ['left' => $v8, 'right' => $v8]))->toBeAnInstanceOf(W16::class);
-        });
-
-        it('creates a concrete class resolving dependency by class in the argument', function() {
-            $di = new Registry;
-            $di->offsetSet(V8::class, function(callable $make) {
-                return $make();
-            });
-
-            expect($di->make(W16::class, ['left' => V8::class, 'right' => V8::class]))->toBeAnInstanceOf(W16::class);
-        });
-
-        it('creates a concrete class resolving dependency by param in the argument prefixed with dollar sign', function() {
-            $di = new Registry;
-            $di->offsetSet(Engine::class, function(callable $make) {
-                return $make(V8::class);
-            });
-            $di->offsetSet('color', 'blue');
-
-            expect($di->make(Car::class, ['color' => '$color'])->color)->toBe('blue');
         });
 
         it('creates a concrete class with delegate lookup the parameter class', function() {

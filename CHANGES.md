@@ -8,6 +8,7 @@
 - Now can assign `{class}${param_name}` to resolve arguments by class and name together.
 - Add factories `ref`, `alias`, `invoke`, `build`, and `automake`.
 - [BC-BREAK] Remove shortcuts to create build a concrete and with arguments.
+- [BC-BREAK] Remove argument resolve.
 
 ### 0.16.0
 
