@@ -192,6 +192,7 @@ class Registry implements \ArrayAccess
         return $reflection->invokeArgs($instance, $context);
     }
 
+    /** Creates a concreate class instance initialized with the given arguments. */
     function make(string $class, array $args=[]) {
         $reflection = ($this->refl)($class);
 
