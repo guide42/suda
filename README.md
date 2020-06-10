@@ -21,6 +21,14 @@ $di(callable $fn, array $arguments);                   // ... with given argumen
 
 $di->freeze();                                         // disallow to store values or factories
 $di->freeze(string $key);                              // ... for this entry key
+
+// FACTORIES
+
+ref(object $instance);                                 // reference to an instance
+alias(Registry $di, string $key);                      // same as given key in registry
+automake();                                            // creates the service automagically
+build(string $class);                                  // creates concrete class
+build(string $class, array $arguments);                // ... with arguments
 ```
 
 Badges
