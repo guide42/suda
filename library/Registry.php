@@ -191,10 +191,10 @@ class Registry implements \ArrayAccess
 
         if (!$reflection->isInstantiable()) {
             if (empty($this->loading)) {
-                throw new \InvalidArgumentException("Target [$class] cannot be construct");
+                throw new \UnexpectedValueException("Target [$class] cannot be construct");
             }
 
-            throw new \InvalidArgumentException(sprintf("Target [$class] cannot be construct while [%s]",
+            throw new \UnexpectedValueException(sprintf("Target [$class] cannot be construct while [%s]",
                 implode(', ', array_keys($this->loading))
             ));
         }

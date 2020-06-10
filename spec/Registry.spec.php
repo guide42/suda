@@ -603,7 +603,7 @@ describe('Registry', function() {
             expect($car->color)->toBe('red');
         });
 
-        it('throws InvalidArgumentException when given class is abstract or interface', function() {
+        it('throws UnexpectedValueException when given class is abstract or interface', function() {
             $di = new Registry;
             $di->offsetSet(Engine::class, function(callable $make) {
                 return $make(Engine::class);
@@ -612,10 +612,10 @@ describe('Registry', function() {
             expect(function() use($di) {
                 $di->make(Engine::class);
             })
-            ->toThrow(new InvalidArgumentException('Target [Engine] cannot be construct'));
+            ->toThrow(new UnexpectedValueException('Target [Engine] cannot be construct'));
         });
 
-        it('throws InvalidArgumentException when resolved class is abstract or interface', function() {
+        it('throws UnexpectedValueException when resolved class is abstract or interface', function() {
             $di = new Registry;
             $di->offsetSet(Engine::class, function(callable $make) {
                 return $make(Engine::class);
@@ -625,7 +625,7 @@ describe('Registry', function() {
             expect(function() use($di) {
                 $di->make(Car::class);
             })
-            ->toThrow(new InvalidArgumentException('Target [Engine] cannot be construct while [Car]'));
+            ->toThrow(new UnexpectedValueException('Target [Engine] cannot be construct while [Car]'));
         });
 
         it('throws CyclicDependency when a cyclic dependency is detected', function() {

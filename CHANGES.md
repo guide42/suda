@@ -3,6 +3,7 @@
 ### 0.17.0
 
 - On `__invoke`, make class when string is not found in the registry.
+- [BC-BREAK] Now `Registry::make` throws `UnexpectedValueException` when is not instantiable.
 
 ### 0.16.0
 
