@@ -8,7 +8,8 @@
         {"name": "Juan M", "email": "jm@guide42.com"}
     ],
     "autoload": {
-        "psr-4": {"suda\\": "library/"}
+        "psr-4": {"suda\\": "library/"},
+        "files": ["library/functions.php"]
     },
     "require-dev": {
         "kahlan/kahlan": "*"

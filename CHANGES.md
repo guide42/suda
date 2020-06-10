@@ -6,6 +6,7 @@
 - [BC-BREAK] Now `Registry::make` throws `UnexpectedValueException` when is not instantiable.
 - [BC-BREAK] Now `InvalidArgumentException` is thrown when trying to reflect an interface.
 - Now can assign `{class}${param_name}` to resolve arguments by class and name together.
+- Add factories `ref`, `build` and `alias`.
 
 ### 0.16.0
 
