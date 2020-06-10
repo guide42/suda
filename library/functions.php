@@ -16,16 +16,23 @@ function alias(Registry $di, string $key): callable {
     };
 }
 
-/** Creates automatically. */
-function automake() {
-    return function(callable $make) {
-        return $make();
+/** Creates given class without arguments. */
+function invoke(string $class): callable {
+    return function(callable $make) use($class) {
+        return new $class;
     };
 }
 
-/** Creates given class with arguments. */
+/** Creates given class with resolving arguments. */
 function build(string $class, array $args=[]): callable {
     return function(callable $make) use($class, $args) {
         return $make($class, $args);
+    };
+}
+
+/** Creates automatically. */
+function automake(): callable {
+    return function(callable $make) {
+        return $make();
     };
 }

@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 use suda\Registry;
-use function suda\{ref, build, alias, automake};
+use function suda\{ref, alias, invoke, build, automake};
 
 require_once 'engine.fixture.php';
 
@@ -26,10 +26,10 @@ describe('functions', function() {
         });
     });
 
-    describe('automake', function() {
-        it('is a factory that creates the service automatically', function() {
+    describe('invoke', function() {
+        it('is a factory that creates given class without parameter (using new operator)', function() {
             $di = new Registry;
-            $di->offsetSet(V8::class, automake());
+            $di->offsetSet(V8::class, invoke(V8::class));
 
             expect($di->offsetGet(V8::class))->toBeAnInstanceOf(V8::class);
         });
@@ -55,6 +55,15 @@ describe('functions', function() {
 
             expect($w16->left)->toBeAnInstanceOf(V8::class);
             expect($w16->right)->toBeAnInstanceOf(V8::class);
+        });
+    });
+
+    describe('automake', function() {
+        it('is a factory that creates the service automatically', function() {
+            $di = new Registry;
+            $di->offsetSet(V8::class, automake());
+
+            expect($di->offsetGet(V8::class))->toBeAnInstanceOf(V8::class);
         });
     });
 });
