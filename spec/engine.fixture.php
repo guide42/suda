@@ -20,6 +20,14 @@ class W16 implements Engine {
     }
 }
 
+class Turbine extends BaseEngine {
+    public $power;
+
+    function __construct(?int $power) {
+        $this->power = $power ?? 60000;
+    }
+}
+
 class Car {
     public $engine;
     public $color;

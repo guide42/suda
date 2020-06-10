@@ -240,7 +240,7 @@ class Registry implements \ArrayAccess
                 $context[$index] = $self->offsetGet($class);
             } elseif ($param->isDefaultValueAvailable()) {
                 $context[$index] = $param->getDefaultValue();
-            } elseif ($param->isOptional() && !$param->isVariadic()) {
+            } elseif ($param->allowsNull() || ($param->isOptional() && !$param->isVariadic())) {
                 $context[$index] = null;
             } else {
                 if (empty($this->loading)) {
