@@ -19,3 +19,9 @@ function alias(Registry $di, string $key): callable {
         return $di->offsetGet($key);
     };
 }
+
+function automake() {
+    return function(callable $make) {
+        return $make();
+    };
+}
