@@ -2,35 +2,7 @@
 
 use suda\{Registry, NotFound, Frozen, CyclicDependency};
 
-interface Engine {}
-
-abstract class BaseEngine implements Engine {}
-
-class V8 implements Engine {
-    function __invoke(string $prefix='') {
-        return "${prefix}World";
-    }
-}
-
-class W16 implements Engine {
-    public $left;
-    public $right;
-
-    function __construct(Engine $left, Engine $right) {
-        $this->left = $left;
-        $this->right = $right;
-    }
-}
-
-class Car {
-    public $engine;
-    public $color;
-
-    function __construct(Engine $engine, string $color='red') {
-        $this->engine = $engine;
-        $this->color = $color;
-    }
-}
+require_once 'engine.fixture.php';
 
 describe('Registry', function() {
     describe('__construct', function() {
