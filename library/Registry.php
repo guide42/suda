@@ -18,7 +18,13 @@ class Registry implements \ArrayAccess
         $this->refl = $refl ?: function($class, string $method=null) {
             static $cache = [];
 
-            $key = (is_string($class) ? $class : spl_object_hash($class));
+            if (is_string($class) && class_exists($class, false)) {
+                $key = $class;
+            } elseif (is_object($class)) {
+                $key = get_class($class);
+            } else {
+                throw new \InvalidArgumentException('Invalid class or class name');
+            }
             if ($method !== null) {
                 $key .= '::' . $method;
             }

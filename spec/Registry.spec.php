@@ -4,6 +4,8 @@ use suda\{Registry, NotFound, Frozen, CyclicDependency};
 
 interface Engine {}
 
+abstract class BaseEngine implements Engine {}
+
 class V8 implements Engine {
     function __invoke(string $prefix='') {
         return "${prefix}World";
@@ -603,7 +605,7 @@ describe('Registry', function() {
             expect($car->color)->toBe('red');
         });
 
-        it('throws UnexpectedValueException when given class is abstract or interface', function() {
+        it('throws InvalidArgumentException when given class is an interface', function() {
             $di = new Registry;
             $di->offsetSet(Engine::class, function(callable $make) {
                 return $make(Engine::class);
@@ -612,20 +614,32 @@ describe('Registry', function() {
             expect(function() use($di) {
                 $di->make(Engine::class);
             })
-            ->toThrow(new UnexpectedValueException('Target [Engine] cannot be construct'));
+            ->toThrow(new InvalidArgumentException('Invalid class or class name'));
         });
 
-        it('throws UnexpectedValueException when resolved class is abstract or interface', function() {
+        it('throws UnexpectedValueException when given class is abstract', function() {
             $di = new Registry;
             $di->offsetSet(Engine::class, function(callable $make) {
-                return $make(Engine::class);
+                return $make(BaseEngine::class);
+            });
+
+            expect(function() use($di) {
+                $di->make(BaseEngine::class);
+            })
+            ->toThrow(new UnexpectedValueException('Target [BaseEngine] cannot be construct'));
+        });
+
+        it('throws UnexpectedValueException when resolved class is abstract', function() {
+            $di = new Registry;
+            $di->offsetSet(Engine::class, function(callable $make) {
+                return $make(BaseEngine::class);
             });
             $di->offsetSet(Car::class, Car::class);
 
             expect(function() use($di) {
                 $di->make(Car::class);
             })
-            ->toThrow(new UnexpectedValueException('Target [Engine] cannot be construct while [Car]'));
+            ->toThrow(new UnexpectedValueException('Target [BaseEngine] cannot be construct while [Car]'));
         });
 
         it('throws CyclicDependency when a cyclic dependency is detected', function() {
@@ -647,6 +661,15 @@ describe('Registry', function() {
                 $di->make(Car::class);
             })
             ->toThrow(new LogicException('Parameter [engine] not found for [Car]'));
+        });
+
+        it('throws InvalidArgumentException when no class is given', function() {
+            $di = new Registry;
+
+            expect(function() use($di) {
+                $di->make('foobar');
+            })
+            ->toThrow(new InvalidArgumentException('Invalid class or class name'));
         });
     });
 });

@@ -4,6 +4,7 @@
 
 - On `__invoke`, make class when string is not found in the registry.
 - [BC-BREAK] Now `Registry::make` throws `UnexpectedValueException` when is not instantiable.
+- [BC-BREAK] Now `InvalidArgumentException` is thrown when trying to reflect an interface.
 
 ### 0.16.0
 
