@@ -66,7 +66,6 @@ class Registry implements \ArrayAccess
             throw new Frozen($key);
         }
 
-        // $this[Engine::class . '$v8'] = V8::class;
         $class = ($dollar = strpos($key, '$')) > 0 ? substr($key, 0, $dollar) : $key;
 
         if (interface_exists($class, false) || class_exists($class, false)) {
@@ -113,7 +112,6 @@ class Registry implements \ArrayAccess
         }
 
         if (isset($this->factories[$key])) {
-            // $this[Engine::class . '$v8'] = V8::class;
             $class = ($dollar = strpos($key, '$')) > 0 ? substr($key, 0, $dollar) : $key;
 
             $service = $this->__invoke($this->factories[$key], [
