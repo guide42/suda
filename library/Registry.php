@@ -130,8 +130,6 @@ class Registry implements \ArrayAccess
 
             $service = $this->__invoke($this->factories[$key], [
                 function(string $dep=null, array $args=[]) use($class) {
-                    // $class should be a concrete class or null
-                    // $dep could be abstract or interface
                     if (is_null($dep) && empty($args)) {
                         return $this->make($class);
                     }
