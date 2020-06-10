@@ -45,11 +45,7 @@ describe('functions', function() {
 
         it('is a factory that creates the given class with arguments', function() {
             $di = new Registry;
-            $di->offsetSet(V8::class, build(V8::class));
-            $di->offsetSet(W16::class, build(W16::class, [
-                V8::class,
-                V8::class,
-            ]));
+            $di->offsetSet(W16::class, build(W16::class, [new V8, new V8]));
 
             $w16 = $di->offsetGet(W16::class);
 

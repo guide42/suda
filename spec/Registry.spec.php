@@ -461,7 +461,7 @@ describe('Registry', function() {
             expect($v8)->toBeAnInstanceOf(V8::class);
         });
 
-        it('calls callable resolving parameters by type hint', function() {
+        it('calls callable resolving parameters by class', function() {
             $di = new Registry;
             $di->offsetSet(V8::class, function(callable $make) {
                 return $make();
@@ -558,6 +558,13 @@ describe('Registry', function() {
             expect($di->make(W16::class, [$v8, $v8]))->toBeAnInstanceOf(W16::class);
         });
 
+        it('creates a concrete class with given arguments from name', function() {
+            $di = new Registry;
+            $v8 = new V8;
+
+            expect($di->make(W16::class, ['left' => $v8, 'right' => $v8]))->toBeAnInstanceOf(W16::class);
+        });
+
         it('creates a concrete class by resolving given arguments from position', function() {
             $di = new Registry;
             $di->offsetSet(V8::class, function(callable $make) {
@@ -593,7 +600,7 @@ describe('Registry', function() {
             expect($di->make(Car::class, ['color' => '$color'])->color)->toBe('blue');
         });
 
-        it('creates a concrete class with delegate lookup the parameter type hint', function() {
+        it('creates a concrete class with delegate lookup the parameter class', function() {
             $di = new Registry;
             $di->offsetSet(Engine::class, function(callable $make) {
                 return $make(V8::class);
