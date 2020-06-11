@@ -226,17 +226,13 @@ class Registry implements \ArrayAccess
 
         /** @var \ReflectionParameter $param */
         foreach ($params as $index => $param) {
-            $pos = $param->getPosition();
-            $name = $param->getName();
-            $class = $param->hasType() && !$param->getType()->isBuiltin() && $param->getClass() ? $param->getClass()->getName() : null;
-
-            if (isset($args[$pos])) {
-                $context[$index] = $args[$pos];
-            } elseif (isset($args[$name])) {
+            if (isset($args[$param->getPosition()])) {
+                $context[$index] = $args[$param->getPosition()];
+            } elseif (($name = $param->getName()) && isset($args[$name])) {
                 $context[$index] = $args[$name];
-            } elseif ($class && $self->offsetExists($class . '$' . $name)) {
-                $context[$index] = $self->offsetGet($class . '$' . $name);
-            } elseif ($class && $self->offsetExists($class)) {
+            } elseif (($type = $param->hasType() ? $param->getType()->getName() : null) && $self->offsetExists($type . '$' . $name)) {
+                $context[$index] = $self->offsetGet($type . '$' . $name);
+            } elseif (($class = $param->getClass() ? $param->getClass()->getName() : null) && $self->offsetExists($class)) {
                 $context[$index] = $self->offsetGet($class);
             } elseif ($param->isDefaultValueAvailable()) {
                 $context[$index] = $param->getDefaultValue();

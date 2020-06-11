@@ -429,6 +429,17 @@ describe('Registry', function() {
             expect($di->__invoke('my_func', [42]))->toBe(42);
         });
 
+        it('calls callable resolving parameters by type and name', function() {
+            $di = new Registry;
+            $di->offsetSet('string$color', 'blue');
+
+            $color = $di->__invoke(function(string $color) {
+                return $color;
+            });
+
+            expect($color)->toEqual('blue');
+        });
+
         it('calls callable resolving parameters by class and name', function() {
             $di = new Registry;
             $di->offsetSet(Engine::class . '$v8', function(callable $make) {
