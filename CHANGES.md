@@ -5,7 +5,6 @@
 - On `__invoke`, make class when string is not found in the registry.
 - [BC-BREAK] Now `Registry::make` throws `UnexpectedValueException` when is not instantiable.
 - [BC-BREAK] Now `InvalidArgumentException` is thrown when trying to reflect an interface.
-- Now can assign `{param_type}${param_name}` to resolve arguments by type and name together.
 - [BC-BREAK] Remove shortcuts to create build a concrete and with arguments.
 - [BC-BREAK] Remove argument resolve.
 

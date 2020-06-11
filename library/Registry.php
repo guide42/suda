@@ -66,9 +66,7 @@ class Registry implements \ArrayAccess
             throw new Frozen($key);
         }
 
-        $class = ($dollar = strpos($key, '$')) > 0 ? substr($key, 0, $dollar) : $key;
-
-        if (interface_exists($class, false) || class_exists($class, false)) {
+        if (interface_exists($key, false) || class_exists($key, false)) {
             if (!method_exists($value, '__invoke')) {
                 throw new \InvalidArgumentException('Service factory must be callable');
             }
@@ -112,19 +110,17 @@ class Registry implements \ArrayAccess
         }
 
         if (isset($this->factories[$key])) {
-            $class = ($dollar = strpos($key, '$')) > 0 ? substr($key, 0, $dollar) : $key;
-
             $service = $this->__invoke($this->factories[$key], [
-                function(string $dep=null, array $args=[]) use($class) {
+                function(string $dep=null, array $args=[]) use($key) {
                     if (is_null($dep) && empty($args)) {
-                        return $this->make($class);
+                        return $this->make($key);
                     }
                     return $this->make($dep, $args);
                 },
             ]);
 
-            if (!$service instanceof $class) {
-                throw new \LogicException("Service factory must return an instance of [$class]");
+            if (!$service instanceof $key) {
+                throw new \LogicException("Service factory must return an instance of [$key]");
             }
 
             return $this->values[$key] = $service;
@@ -230,8 +226,6 @@ class Registry implements \ArrayAccess
                 $context[$index] = $args[$param->getPosition()];
             } elseif (($name = $param->getName()) && isset($args[$name])) {
                 $context[$index] = $args[$name];
-            } elseif (($type = $param->hasType() ? $param->getType()->getName() : null) && $self->offsetExists($type . '$' . $name)) {
-                $context[$index] = $self->offsetGet($type . '$' . $name);
             } elseif (($class = $param->getClass() ? $param->getClass()->getName() : null) && $self->offsetExists($class)) {
                 $context[$index] = $self->offsetGet($class);
             } elseif ($param->isDefaultValueAvailable()) {
