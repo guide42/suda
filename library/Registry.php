@@ -66,7 +66,7 @@ class Registry implements \ArrayAccess
             throw new Frozen($key);
         }
 
-        if (interface_exists($key, false) || class_exists($key, false)) {
+        if (interface_exists($key) || class_exists($key)) {
             if (!method_exists($value, '__invoke')) {
                 throw new \InvalidArgumentException('Service factory must be callable');
             }
