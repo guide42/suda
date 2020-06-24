@@ -382,11 +382,11 @@ describe('Registry', function() {
 
     describe('__invoke', function() {
         it('calls callable when object that has __invoke method is given', function() {
-            expect((new Registry)->__invoke(new V8, ['prefix' => '']))->toBe('World');
+            expect((new Registry)->__invoke(new V8))->toBe('World');
         });
 
         it('calls callable when class that is not in container and has __invoke method is given', function() {
-            expect((new Registry)->__invoke(V8::class, ['prefix' => '']))->toBe('World');
+            expect((new Registry)->__invoke(V8::class))->toBe('World');
         });
 
         it('calls callable when class that is in container and has __invoke method is given', function() {
@@ -408,7 +408,7 @@ describe('Registry', function() {
         });
 
         it('calls callable when array of object and method is given', function() {
-            expect((new Registry)->__invoke([new V8, '__invoke'], ['prefix' => '']))->toBe('World');
+            expect((new Registry)->__invoke([new V8, '__invoke']))->toBe('World');
         });
 
         it('calls callable when array of class that is in container and method is given', function() {
@@ -422,11 +422,11 @@ describe('Registry', function() {
 
         it('calls callable when string of closure that is in the container is given', function() {
             $di = new Registry;
-            $di['my_func'] = function($val) {
-                return $val;
+            $di['my_func'] = function() {
+                return 42;
             };
 
-            expect($di->__invoke('my_func', [42]))->toBe(42);
+            expect($di->__invoke('my_func'))->toBe(42);
         });
 
         it('calls callable resolving parameters by class', function() {
