@@ -2,7 +2,7 @@
     "name": "guide42/suda",
     "type": "library",
     "description": "Registry of values and dependency injector",
-    "keywords": ["registry", "container", "di", "dependency injection"],
+    "keywords": ["registry", "container", "di", "dependency injection", "ioc"],
     "license": "ISC",
     "authors": [
         {"name": "Juan M", "email": "jm@guide42.com"}
