@@ -500,9 +500,6 @@ describe('Registry', function() {
             $di->offsetSet(Engine::class, function(callable $make) {
                 return $make(V8::class);
             });
-            $di->offsetSet(W16::class, function(callable $make) {
-                return $make();
-            });
 
             expect($di->make(W16::class))->toBeAnInstanceOf(W16::class);
         });
@@ -519,9 +516,6 @@ describe('Registry', function() {
             $di = new Registry;
             $di->offsetSet(Engine::class, function(callable $make) {
                 return $make(V8::class);
-            });
-            $di->offsetSet(Car::class, function(callable $make) {
-                return $make();
             });
 
             $car = $di->make(Car::class);
@@ -559,9 +553,6 @@ describe('Registry', function() {
             $di->offsetSet(Engine::class, function(callable $make) {
                 return $make(BaseEngine::class);
             });
-            $di->offsetSet(Car::class, function(callable $make) {
-                return $make();
-            });
 
             expect(function() use($di) {
                 $di->make(Car::class);
@@ -574,9 +565,6 @@ describe('Registry', function() {
             $di->offsetSet(Engine::class, function(callable $make) {
                 return $make(W16::class);
             });
-            $di->offsetSet(W16::class, function(callable $make) {
-                return $make();
-            });
 
             expect(function() use($di) {
                 $di->make(W16::class);
@@ -586,9 +574,6 @@ describe('Registry', function() {
 
         it('throws LogicException when a parameter is not found', function() {
             $di = new Registry;
-            $di->offsetSet(Car::class, function(callable $make) {
-                return $make();
-            });
 
             expect(function() use($di) {
                 $di->make(Car::class);
